@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>碳核算与储碳能力对比研究 — 森林·草地·海洋</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+/* ===== Design tokens ===== */
+:root {
+  --surface-1:      #fcfcfb;
+  --surface-page:   #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --gridline:       #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border:         rgba(11,11,11,0.10);
+  --forest:       #2a78d6;
+  --grassland:    #eb6834;
+  --bluecarbon:   #1baf7a;
+  --forest-wash:    rgba(42,120,214,0.08);
+  --grassland-wash: rgba(235,104,52,0.08);
+  --bluecarbon-wash:rgba(27,175,122,0.08);
+  --radius: 12px;
+}
+[data-theme="dark"] {
+  --surface-1:      #1a1a19;
+  --surface-page:   #0d0d0d;
+  --text-primary:   #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted:     #898781;
+  --gridline:       #2c2c2a;
+  --baseline:       #383835;
+  --border:         rgba(255,255,255,0.10);
+  --forest:       #3987e5;
+  --grassland:    #d95926;
+  --bluecarbon:   #199e70;
+  --forest-wash:    rgba(57,135,229,0.10);
+  --grassland-wash: rgba(217,89,38,0.10);
+  --bluecarbon-wash:rgba(25,158,112,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+}
+.theme-bar {
+  position: fixed; top: 16px; right: 16px; z-index: 100;
+  display: flex; gap: 4px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.theme-btn {
+  width: 36px; height: 32px; border: none; border-radius: 6px;
+  cursor: pointer; background: transparent; color: var(--text-secondary);
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.theme-btn:hover { background: var(--gridline); }
+.theme-btn.active { background: var(--forest-wash); color: var(--forest); font-weight: 700; }
+.page { max-width: 1160px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ===== Header ===== */
+.header { text-align: center; padding: 56px 0 36px; }
+.header .badge {
+  display: inline-block; padding: 5px 16px; border-radius: 100px;
+  background: var(--forest-wash); color: var(--forest); font-size: 12px; font-weight: 600;
+  margin-bottom: 20px; letter-spacing: 0.5px;
+}
+.header h1 { font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1.25; }
+.header .subtitle { font-size: 14px; color: var(--text-muted); margin-top: 12px; }
+
+/* ===== Sections ===== */
+.section-title {
+  font-size: 24px; font-weight: 700; margin: 56px 0 8px;
+  padding-bottom: 14px; border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.section-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--forest); color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.section-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; margin-left: 42px; }
+
+/* ===== KPI ===== */
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 36px 0 12px; }
+.kpi-card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px 20px;
+  position: relative; overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.kpi-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.07); transform: translateY(-2px); }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.kpi-card.forest::before { background: var(--forest); }
+.kpi-card.grassland::before { background: var(--grassland); }
+.kpi-card.bluecarbon::before { background: var(--bluecarbon); }
+.kpi-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+.kpi-name { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.kpi-stats { display: flex; flex-direction: column; gap: 10px; }
+.kpi-stat { display: flex; justify-content: space-between; align-items: baseline; }
+.kpi-stat-label { font-size: 12px; color: var(--text-secondary); }
+.kpi-stat-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi-highlight { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+.kpi-highlight.best { background: var(--bluecarbon-wash); color: var(--bluecarbon); }
+
+/* ===== Chart card ===== */
+.chart-section {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px 28px 20px; margin-bottom: 20px;
+}
+.chart-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.chart-section .chart-note { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.chart-wrap { width: 100%; }
+.chart-wrap .echart { width: 100%; }
+
+/* ===== Source badge ===== */
+.source-badge {
+  display: inline-flex; align-items: flex-start; gap: 6px; flex-wrap: wrap;
+  font-size: 11px; color: var(--text-muted); margin-top: 10px;
+  padding: 6px 12px; background: var(--gridline); border-radius: 6px; line-height: 1.5;
+}
+.source-badge a { color: var(--forest); text-decoration: none; font-weight: 500; border-bottom: 1px dotted var(--forest); }
+.source-badge a:hover { border-bottom-style: solid; }
+.src-sep { color: var(--baseline); }
+
+/* ===== Comparison table ===== */
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.comparison-table thead th {
+  text-align: left; padding: 12px; font-weight: 600; font-size: 11px;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--baseline); white-space: nowrap;
+}
+.comparison-table tbody td { padding: 12px; border-bottom: 1px solid var(--gridline); vertical-align: top; }
+.comparison-table tbody tr { transition: background 0.15s; }
+.comparison-table tbody tr:hover { background: var(--forest-wash); }
+.comparison-table .dim-label { font-weight: 600; }
+.comparison-table .best { font-weight: 700; color: var(--bluecarbon); }
+
+/* ===== Insight cards ===== */
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.insight-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.insight-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.insight-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+/* ===== Case detail sections ===== */
+.case-detail {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 32px; margin-bottom: 28px;
+}
+.case-detail .case-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.case-detail .case-emoji { font-size: 40px; line-height: 1; }
+.case-detail .case-head h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.case-detail .case-loc { font-size: 13px; color: var(--text-muted); }
+.case-tag {
+  display: inline-block; padding: 3px 12px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; margin-left: 8px; vertical-align: middle;
+}
+.case-tag.domestic { background: var(--forest-wash); color: var(--forest); }
+.case-tag.international { background: var(--grassland-wash); color: var(--grassland); }
+.case-detail .case-body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .case-detail .case-body { grid-template-columns: 1fr; } }
+.case-block { margin-bottom: 14px; }
+.case-block .block-title {
+  font-size: 12px; font-weight: 700; color: var(--text-muted);
+  letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.case-block .block-title::after { content: ''; flex: 1; height: 1px; background: var(--gridline); }
+.case-block p, .case-block li { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.case-block ul { padding-left: 18px; }
+.case-block li { margin-bottom: 4px; }
+.case-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.case-stat-chip {
+  padding: 6px 14px; border-radius: 8px; font-size: 13px;
+  background: var(--gridline); color: var(--text-primary); font-weight: 600;
+}
+.case-stat-chip small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; }
+.case-insight {
+  background: var(--forest-wash); border-radius: 8px; padding: 12px 16px;
+  font-size: 13px; color: var(--text-primary); border-left: 3px solid var(--forest);
+}
+.case-insight strong { color: var(--forest); }
+.case-source-box {
+  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--gridline);
+  font-size: 11px; color: var(--text-muted);
+}
+.case-source-box a { color: var(--forest); text-decoration: none; border-bottom: 1px dotted var(--forest); }
+.case-source-box a:hover { border-bottom-style: solid; }
+
+/* ===== Timeline (CCER) ===== */
+.timeline { position: relative; padding-left: 32px; margin: 20px 0 8px; }
+.timeline::before { content: ''; position: absolute; left: 10px; top: 4px; bottom: 4px; width: 2px; background: var(--gridline); }
+.tl-item { position: relative; padding-bottom: 24px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  position: absolute; left: -32px; top: 4px; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--surface-1); border: 3px solid var(--forest);
+  display: flex; align-items: center; justify-content: center;
+}
+.tl-dot.grassland { border-color: var(--grassland); }
+.tl-dot.bluecarbon { border-color: var(--bluecarbon); }
+.tl-year { font-size: 14px; font-weight: 700; color: var(--forest); }
+.tl-item.grassland .tl-year { color: var(--grassland); }
+.tl-item.bluecarbon .tl-year { color: var(--bluecarbon); }
+.tl-name { font-size: 14px; font-weight: 600; margin: 2px 0 2px; }
+.tl-desc { font-size: 12px; color: var(--text-secondary); }
+.tl-desc a { color: var(--forest); }
+
+/* ===== 示意图 (procedural diagrams) ===== */
+.flow-row { display: flex; align-items: stretch; gap: 0; margin: 12px 0; flex-wrap: wrap; }
+.flow-step {
+  flex: 1; min-width: 140px; background: var(--surface-page);
+  border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;
+  position: relative; text-align: center;
+}
+.flow-step + .flow-step { margin-left: 12px; }
+.flow-step + .flow-step::before {
+  content: '→'; position: absolute; left: -11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 16px;
+}
+.flow-step .fs-num { font-size: 11px; font-weight: 700; color: var(--forest); display: block; }
+.flow-step .fs-title { font-size: 13px; font-weight: 600; display: block; margin-top: 2px; }
+.flow-step .fs-desc { font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px; }
+
+/* ===== Stat hero strip (case 4) ===== */
+.stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+.stat-strip .ss-item {
+  background: var(--surface-page); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; text-align: center;
+}
+.stat-strip .ss-value { font-size: 26px; font-weight: 700; color: var(--bluecarbon); }
+.stat-strip .ss-value.forest { color: var(--forest); }
+.stat-strip .ss-value.grassland { color: var(--grassland); }
+.stat-strip .ss-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* ===== Case nav ===== */
+.case-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.case-nav a {
+  padding: 6px 14px; border-radius: 100px; font-size: 13px; text-decoration: none;
+  color: var(--text-secondary); border: 1px solid var(--baseline); transition: all 0.15s;
+}
+.case-nav a:hover { border-color: var(--forest); color: var(--forest); }
+
+/* ===== Footer ===== */
+.footer { text-align: center; padding: 60px 0 24px; color: var(--text-muted); font-size: 12px; }
+.footer p { margin: 4px 0; }
+
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .header h1 { font-size: 24px; }
+  .chart-section { padding: 16px 12px; }
+  .page { padding: 20px 12px 60px; }
+  .case-detail { padding: 20px 16px; }
+}
+@media print { .theme-bar { display: none; } }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="theme-bar">
+  <button class="theme-btn active" data-theme="light" title="浅色模式">☀</button>
+  <button class="theme-btn" data-theme="dark" title="深色模式">☽</button>
+</div>
+
+<div class="page">
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <span class="badge">课题 #3 · 碳核算与储碳能力对比研究</span>
+  <h1>森林 · 草地 · 海洋<br>碳汇核算方法与储碳能力对比</h1>
+  <p class="subtitle">基于 IPCC 指南、CCER 方法学及国内外典型案例的综合分析 &nbsp;|&nbsp; 2026年7月</p>
+</header>
+
+<!-- ===== KPI ===== -->
+<section>
+<div class="kpi-row">
+  <div class="kpi-card forest">
+    <span class="kpi-icon">🌲</span>
+    <div class="kpi-name">森林碳汇</div>
+    <div class="kpi-stats">
+      <div class="kpi-stat"><span class="kpi-stat-label">全球总碳储量</span><span class="kpi-stat-value">~1,146 GtC</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">储碳密度</span><span class="kpi-stat-value">100 – 400 tC/ha</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">年固碳速率</span><span class="kpi-stat-value">0.5 – 5.0 tC/ha/yr</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">碳持久性</span><span class="kpi-stat-value">50 – 200 年</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">CCER成熟度</span><span class="kpi-stat-value">✅ 成熟（5个方法学）</span></div>
+    </div>
+  </div>
+  <div class="kpi-card grassland">
+    <span class="kpi-icon">🌾</span>
+    <div class="kpi-name">草地碳汇</div>
+    <div class="kpi-stats">
+      <div class="kpi-stat"><span class="kpi-stat-label">全球总碳储量</span><span class="kpi-stat-value">~634 GtC</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">储碳密度</span><span class="kpi-stat-value">50 – 250 tC/ha</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">年固碳速率</span><span class="kpi-stat-value">0.1 – 1.0 tC/ha/yr</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">碳持久性</span><span class="kpi-stat-value">100 – 1,000 年</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">CCER成熟度</span><span class="kpi-stat-value">🟡 较成熟（1个方法学）</span></div>
+    </div>
+  </div>
+  <div class="kpi-card bluecarbon">
+    <span class="kpi-icon">🌊</span>
+    <div class="kpi-name">海洋蓝碳</div>
+    <div class="kpi-stats">
+      <div class="kpi-stat"><span class="kpi-stat-label">全球总碳储量</span><span class="kpi-stat-value">~38,000 GtC（全海洋）</span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">储碳密度</span><span class="kpi-stat-value">200 – 1,000 tC/ha <span class="kpi-highlight best">最高</span></span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">年固碳速率</span><span class="kpi-stat-value">1.0 – 8.0 tC/ha/yr <span class="kpi-highlight best">最高</span></span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">碳持久性</span><span class="kpi-stat-value">1,000 – 6,000+ 年 <span class="kpi-highlight best">最长</span></span></div>
+      <div class="kpi-stat"><span class="kpi-stat-label">CCER成熟度</span><span class="kpi-stat-value">🔵 快速发展中（3个方法学）</span></div>
+    </div>
+  </div>
+</div>
+<div class="source-badge" style="margin-bottom: 48px;">
+  📚 <strong>数据来源：</strong>
+  <a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001) Table 3.2</a> <span class="src-sep">|</span>
+  <a href="https://archive.ipcc.ch/ipccreports/sres/land_use/index.php?idp=25" target="_blank" rel="noopener">IPCC LULUCF SR (2000) Table 5-1</a> <span class="src-sep">|</span>
+  <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span>
+  <a href="https://doi.org/10.1038/nclimate1970" target="_blank" rel="noopener">Duarte et al. (2013)</a>
+</div>
+</section>
+
+<!-- ===== CHART 1: 储碳密度 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">1</span> 储碳密度对比</h2>
+<p class="section-desc">单位面积碳储量（tC/ha）—— 反映每公顷土地的"碳库容量"。蓝碳生态系统面积虽小（约为森林面积的 1.2%），但单位面积储碳密度最高。</p>
+<div class="chart-section">
+  <h3>碳储密度上限对比（tC/ha）</h3>
+  <p class="chart-note">柱体显示典型上限值，浅色延伸区显示完整范围。蓝碳储碳密度上限 1,000 tC/ha，是森林的 2.5 倍、草地的 4 倍。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-density" style="height:320px;"></div></div>
+  <div class="source-badge">📚 <strong>来源：</strong><a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001) Table 3.2</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1038/nclimate1970" target="_blank" rel="noopener">Duarte et al. (2013)</a></div>
+</div>
+</section>
+
+<!-- ===== CHART 2: 年固碳速率 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">2</span> 年固碳速率对比</h2>
+<p class="section-desc">每年每公顷固定的碳量（tC/ha/yr）—— 反映"碳汇效率"。红树林年固碳速率最高可达 8.0 tC/ha/yr，是热带森林的 1.6 倍、草地的 8 倍。</p>
+<div class="chart-section">
+  <h3>年固碳速率对比（tC/ha/yr）</h3>
+  <p class="chart-note">蓝碳生态系统固碳效率远超陆地生态系统，是效率最高的自然碳汇类型。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-rate" style="height:320px;"></div></div>
+  <div class="source-badge">📚 <strong>来源：</strong><a href="https://archive.ipcc.ch/ipccreports/sres/land_use/index.php?idp=25" target="_blank" rel="noopener">IPCC LULUCF SR (2000) Table 5-1</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1038/nclimate1970" target="_blank" rel="noopener">Duarte et al. (2013)</a></div>
+</div>
+</section>
+
+<!-- ===== CHART 3: 碳持久性 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">3</span> 碳持久性对比</h2>
+<p class="section-desc">碳被封存后在生态系统中的停留时间（年）—— 反映"碳汇质量"。蓝碳沉积物中的碳可封存数千年。</p>
+<div class="chart-section">
+  <h3>碳持久性上限对比（年）</h3>
+  <p class="chart-note">蓝碳持久性长达 6,000+ 年，几乎为永久封存。森林仅 50–200 年（火灾/采伐风险），草地居中。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-permanence" style="height:320px;"></div></div>
+  <div class="source-badge">📚 <strong>来源：</strong><a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span> <a href="https://www.ipcc-nggip.iges.or.jp/public/wetlands/" target="_blank" rel="noopener">IPCC 2013 Wetlands Supplement, Chapter 4</a> <span class="src-sep">|</span> <a href="https://www.ipcc-nggip.iges.or.jp/public/2019rf/" target="_blank" rel="noopener">IPCC 2019 Refinement</a></div>
+</div>
+</section>
+
+<!-- ===== CHART 4: 雷达图 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">4</span> 多维雷达对比</h2>
+<p class="section-desc">六维综合可视化，直观比较三类生态系统的"碳汇综合实力"。</p>
+<div class="chart-section">
+  <h3>六维碳汇能力雷达图（0-10 标准化评分）</h3>
+  <p class="chart-note">蓝碳在效率和持久性上遥遥领先，但 NPP 总量和监测便利性上不如陆地生态系统。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-radar" style="height:440px;"></div></div>
+  <div class="source-badge">📚 <strong>来源：</strong>六维评分基于以下文献数据标准化：<a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001)</a> <span class="src-sep">|</span> <a href="https://archive.ipcc.ch/ipccreports/sres/land_use/index.php?idp=25" target="_blank" rel="noopener">IPCC LULUCF SR (2000)</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a></div>
+</div>
+</section>
+
+<!-- ===== SECTION 5: 核算方法图解 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">5</span> 核算方法体系图解</h2>
+<p class="section-desc">两大核算体系的结构化图解：IPCC 三级精度体系与 CCER 碳汇方法学演进。</p>
+
+<!-- 5.1 IPCC Tier -->
+<div class="chart-section">
+  <h3>5.1 IPCC 三级精度体系（Tier 1–3）</h3>
+  <p class="chart-note">从"全球默认系数"到"实地测量+模型"，精度逐级提升，成本也逐级上升。Tier 1 默认系数误差以柱形显示（地上生物量 ±50%，土壤有机碳 ±90%）。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-tier" style="height:300px;"></div></div>
+  <div class="flow-row" style="margin-top:16px;">
+    <div class="flow-step"><span class="fs-num">① 数据获取</span><span class="fs-title">监测核算</span><span class="fs-desc">第三方机构监测碳库</span></div>
+    <div class="flow-step"><span class="fs-num">② 专家审查</span><span class="fs-title">审查验证</span><span class="fs-desc">专家审查监测结果</span></div>
+    <div class="flow-step"><span class="fs-num">③ 政府审定</span><span class="fs-title">审定备案</span><span class="fs-desc">主管部门最终审定</span></div>
+    <div class="flow-step"><span class="fs-num">④ 制发凭证</span><span class="fs-title">制发碳票</span><span class="fs-desc">发放具有收益权凭证</span></div>
+  </div>
+  <div class="source-badge">📚 <strong>来源：</strong><a href="https://www.ipcc-nggip.iges.or.jp/public/2006gl/" target="_blank" rel="noopener">IPCC 2006 Guidelines</a> <span class="src-sep">|</span> <a href="https://www.iucn.org/resources/publication/coastal-blue-carbon-manual" target="_blank" rel="noopener">IUCN Coastal Blue Carbon Manual (2014)</a> <span class="src-sep">|</span> <a href="https://www.oca.gov.tw" target="_blank" rel="noopener">台湾海洋委员会标准作业程序</a></div>
+</div>
+
+<!-- 5.2 CCER timeline -->
+<div class="chart-section">
+  <h3>5.2 CCER 碳汇方法学演进时间线</h3>
+  <p class="chart-note">从旧版 CCER 的林业/草地方法学，到 2023 年重启后的红树林营造，再到 2026 年滨海盐沼与海草床——海洋碳汇正快速纳入国内碳市场。</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">🌲</div>
+      <div class="tl-year">2013–2017 · 旧版CCER备案期</div>
+      <div class="tl-name">林业碳汇方法学群（最成熟）</div>
+      <div class="tl-desc">碳汇造林（AR-CM-001-V01）、竹子造林（AR-CM-002-V01）、森林经营（AR-CM-003-V01）。亩均年减排 0.15–1.34 tCO₂（造林）、0.11–0.37 tCO₂（森林经营）。</div>
+    </div>
+    <div class="tl-item grassland">
+      <div class="tl-dot grassland">🌾</div>
+      <div class="tl-year grassland">2013–2017 · 旧版CCER备案期</div>
+      <div class="tl-name">可持续草地管理（AR-CM-004-V01）</div>
+      <div class="tl-desc">草原碳汇方法学，适用于退化草原修复，碳增量主要来自土壤有机碳。单位面积减排量通常低于森林，目前尚无已公示的 CCER 草原碳汇项目。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">🌳</div>
+      <div class="tl-year">2023.10 · CCER 重启</div>
+      <div class="tl-name">造林碳汇（CCER-14-001-V01）+ 红树林营造</div>
+      <div class="tl-desc">新版方法学增加持久性风险扣减等保守性要求。红树林营造方法学成为首个海洋领域 CCER 方法学，首个项目为福建霞浦红树林修复。</div>
+    </div>
+    <div class="tl-item bluecarbon">
+      <div class="tl-dot bluecarbon">🌊</div>
+      <div class="tl-year bluecarbon">2025–2026 · 蓝碳加速</div>
+      <div class="tl-name">滨海盐沼植被修复（CCER-14-003-V01）+ 海草床植被修复</div>
+      <div class="tl-desc">2026年发布，海洋碳汇正式纳入 CCER 市场，配套 2023 年自然资源部 6 项蓝碳技术规程与 2025 年国家标准《典型蓝碳生态系统碳汇监测与核算技术规范》。</div>
+    </div>
+  </div>
+  <div class="source-badge">📚 <strong>来源：</strong><a href="https://www.mee.gov.cn" target="_blank" rel="noopener">中国生态环境部 CCER 方法学</a> <span class="src-sep">|</span> <a href="https://m.163.com/dy/article/KHL5367I0514K880.html" target="_blank" rel="noopener">国家标准通过终审 (2025)</a> <span class="src-sep">|</span> <a href="https://nr.gd.gov.cn/xwdtnew/hydt/content/post_4186545.html" target="_blank" rel="noopener">自然资源部蓝碳系列技术规程 (2023)</a></div>
+</div>
+</section>
+
+<!-- ===== SECTION 6: 综合对比表 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">6</span> 综合对比表</h2>
+<p class="section-desc">森林、草地、海洋/蓝碳在 12 个维度的全面对比。"🏆"标记表示该维度表现最优。</p>
+<div class="chart-section" style="overflow-x:auto;">
+<table class="comparison-table">
+<thead>
+  <tr><th>对比维度</th><th>🌲 森林</th><th>🌾 草地</th><th>🌊 海洋/蓝碳</th></tr>
+</thead>
+<tbody>
+  <tr><td class="dim-label">全球面积</td><td>~4,170 万 km² 🏆</td><td>~3,500 万 km²</td><td>~50 万 km²（仅蓝碳生态系统）</td></tr>
+  <tr><td class="dim-label">总碳储量</td><td>~1,146 GtC</td><td>~634 GtC</td><td>~38,000 GtC（全海洋）🏆<br>~13–19 GtC（蓝碳）</td></tr>
+  <tr><td class="dim-label">占陆地碳库比例</td><td>~46% 🏆</td><td>~26%</td><td>—</td></tr>
+  <tr><td class="dim-label">储碳密度</td><td>100 – 400 tC/ha</td><td>50 – 250 tC/ha</td><td class="best">200 – 1,000 tC/ha 🏆</td></tr>
+  <tr><td class="dim-label">年固碳速率</td><td>0.5 – 5.0 tC/ha/yr</td><td>0.1 – 1.0 tC/ha/yr</td><td class="best">1.0 – 8.0 tC/ha/yr 🏆</td></tr>
+  <tr><td class="dim-label">NPP 总量</td><td>~32.6 GtC/yr 🏆</td><td>~21.9 GtC/yr</td><td>~2.2 GtC/yr（净吸收）</td></tr>
+  <tr><td class="dim-label">碳库主要位置</td><td>地上生物量（40–60%）</td><td>土壤（> 90%）</td><td>缺氧沉积物</td></tr>
+  <tr><td class="dim-label">碳持久性</td><td>50 – 200 年</td><td>100 – 1,000 年</td><td class="best">1,000 – 6,000+ 年 🏆</td></tr>
+  <tr><td class="dim-label">火灾/释放风险</td><td>⚠ 高（火灾、虫害、采伐）</td><td>✅ 低</td><td>✅ 低（排水后释放）</td></tr>
+  <tr><td class="dim-label">监测难度</td><td>中等 🏆（最易）</td><td>较高</td><td>较高（水下采样）</td></tr>
+  <tr><td class="dim-label">CCER方法学成熟度</td><td>✅ 成熟（5个方法学）🏆</td><td>🟡 较成熟（1个方法学）</td><td>🔵 快速发展中（3个方法学）</td></tr>
+  <tr><td class="dim-label">典型交易模式</td><td>林业碳票（三明模式）</td><td>草原碳票（达茂旗模式）</td><td>蓝碳交易（湛江/霞浦模式）</td></tr>
+</tbody>
+</table>
+<div class="source-badge">📚 <strong>来源：</strong>
+  <a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001) Table 3.2</a> <span class="src-sep">|</span>
+  <a href="https://archive.ipcc.ch/ipccreports/sres/land_use/index.php?idp=25" target="_blank" rel="noopener">IPCC LULUCF SR (2000) Table 5-1</a> <span class="src-sep">|</span>
+  <a href="https://www.ipcc-nggip.iges.or.jp/public/wetlands/" target="_blank" rel="noopener">IPCC Wetlands Supplement (2014)</a> <span class="src-sep">|</span>
+  <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span>
+  <a href="https://www.mee.gov.cn" target="_blank" rel="noopener">中国生态环境部 CCER (2023–2026)</a>
+</div>
+</div>
+</section>
+
+<!-- ===== SECTION 7: 案例详解 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">7</span> 国内外典型案例详解</h2>
+<p class="section-desc">7 个标志性碳汇项目详解：📌 背景 → 🔬 核算方法 → 📊 关键数据 → 🏆 成效 → 💡 借鉴意义。每个案例配独立的可视化。</p>
+
+<div class="case-nav">
+  <a href="#case-1">① 三明林票</a>
+  <a href="#case-2">② 达茂旗草票</a>
+  <a href="#case-3">③ 湛江蓝碳</a>
+  <a href="#case-4">④ 霞浦红树林</a>
+  <a href="#case-5">⑤ Mikoko Pamoja</a>
+  <a href="#case-6">⑥ 澳洲Savanna</a>
+  <a href="#case-7">⑦ 美国草地</a>
+</div>
+
+<!-- ========== CASE 1: 三明林票 ========== -->
+<article class="case-detail" id="case-1">
+  <div class="case-head">
+    <span class="case-emoji">🌲</span>
+    <div>
+      <h3>案例一 · 福建三明林业碳票<span class="case-tag domestic">国内 · 林业碳汇</span></h3>
+      <p class="case-loc">📍 福建三明 · 2019年起 · 全国林业改革试验区</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>三明市是全国集体林权制度改革发源地，2019年率先推出<strong>林票</strong>制度：国有林业单位与村集体共同出资造林或合作经营，按投资份额制发林业生物资产凭证。针对林权"碎片化"和林农缺乏技术资金导致造林成活率低的痛点，将森林固碳释氧功能资产化。三明兼具医改与林改双重试点身份，"碳汇锦旗"项目正是将其与医疗公益场景结合。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>第三方机构对森林固碳释氧量进行<strong>监测核算</strong></li>
+          <li>专家对监测结果进行<strong>审查</strong></li>
+          <li>林业及相关部门<strong>最终审定</strong></li>
+          <li>制发具有收益权的凭证，赋予<strong>交易、质押、兑现、抵消</strong>等权能</li>
+          <li>林票 2.0（林业生物资产票据）在公开登记系统登记公示后生成电子化凭证</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>林票从 1.0 升级到 2.0（电子化），引入<strong>上海交易集团</strong>专业力量，打破流通壁垒</li>
+          <li>"碳汇锦旗"上线全国统一交易平台，<strong>交易量超 1,200 单</strong>，成为全国最大持续性碳汇交易项目</li>
+          <li>完成"中国碳票第一村"常口村等标志性案例</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          林票 2.0 的<strong>电子化、标准化</strong>思路可直接推广到草票、海洋碳票；"碳汇锦旗"证明<strong>高频公益场景</strong>可以解决碳汇"一锤子买卖"难题——这是"一票通"最需要的应用场景范式。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="case-stats">
+        <span class="case-stat-chip">1,200+ 单<small>碳汇锦旗交易量</small></span>
+        <span class="case-stat-chip">1.0 → 2.0<small>林票迭代</small></span>
+        <span class="case-stat-chip">四种模式<small>出让/委托/合资/入股</small></span>
+      </div>
+      <div class="chart-wrap"><div class="echart" id="chart-case1" style="height:300px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 林票 1.0 与 2.0 六维度能力对比（定性评分，基于政视自然公众号文章对林票 2.0 优势的描述整理）</p>
+      <div class="case-source-box">📖 <a href="https://www.gov.cn/zhengce/202309/content_6902595.htm" target="_blank" rel="noopener">中办国办《深化集体林权制度改革方案》(2023)</a> <span class="src-sep">|</span> 零碳项目内部资料（项目内容.txt / 会议记录.txt / 分享公众号内容.wps）</div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 2: 达茂旗草票 ========== -->
+<article class="case-detail" id="case-2">
+  <div class="case-head">
+    <span class="case-emoji">🌾</span>
+    <div>
+      <h3>案例二 · 内蒙古达茂旗草原碳票<span class="case-tag domestic">国内 · 草地碳汇</span></h3>
+      <p class="case-loc">📍 内蒙古包头达茂旗 · 2025年11月完成全国首笔"草票"碳汇交易</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>达茂旗地处内蒙古草原腹地，借鉴三明经验推出全国首张"草原碳票"，为草原碳汇价值变现提供路径。针对草原碳汇开发完成后"变现难"的痛点，探索将草原生态修复产生的碳汇转化为可交易凭证。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>严格遵循国际<strong>VCS VM0026</strong>方法学 + 地方标准 <strong>DB15/T 3766—2024</strong></li>
+          <li>指标体系：植被高度、盖度、地上/地下生物量、土壤有机碳含量、容重、厚度、凋落物量</li>
+          <li>样地按面积分级布设（见右图），草本 1m×1m、小灌木 2m×2m 样方</li>
+          <li>引入<strong>遥感 + GIS</strong>动态监测，要求 <strong>90% 可靠性水平下 90% 精度</strong></li>
+          <li>碳汇量 = 修复后总碳储量 − 修复前总碳储量</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>2025年11月完成<strong>全国首笔"草票"碳汇交易</strong></li>
+          <li>累计碳汇量约 <strong>12,916.25 万吨 CO₂e</strong>，计入期 40 年，年均 32 万吨</li>
+          <li>首期签发 40 万吨 CO₂e，通过 <strong>CCER 平台销往欧洲市场</strong></li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          草票提供林业之外的第<strong>二种生态资产类型</strong>；样地抽样与遥感监测方法可标准化推广；<strong>VCS + 国内标准双认证</strong>模式值得其他碳票借鉴。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="stat-strip">
+        <div class="ss-item"><div class="ss-value grassland">12,916万</div><div class="ss-label">累计碳汇量 (tCO₂e)</div></div>
+        <div class="ss-item"><div class="ss-value grassland">32万</div><div class="ss-label">年均碳汇量 (tCO₂e)</div></div>
+        <div class="ss-item"><div class="ss-value grassland">40万吨</div><div class="ss-label">首期签发</div></div>
+        <div class="ss-item"><div class="ss-value grassland">40年</div><div class="ss-label">计入期</div></div>
+      </div>
+      <div class="chart-wrap"><div class="echart" id="chart-case2" style="height:260px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 样地布设密度分级：项目面积越大，样地间隔越稀（DB15/T 3766—2024）</p>
+      <div class="case-source-box">📖 <a href="http://www.neimenggu.xinhua.org/20251105/612c335e74c7403aa90067327ea2b9fb/c.html" target="_blank" rel="noopener">新华网内蒙古 (2025.11.5)</a> <span class="src-sep">|</span> <a href="http://nm.people.com.cn/BIG5/n2/2025/1105/c196667-41401897.html" target="_blank" rel="noopener">人民网内蒙古 (2025.11.5)</a> <span class="src-sep">|</span> <a href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202511/t20251103_710811.html" target="_blank" rel="noopener">达茂旗人民政府 (2025.11.3)</a></div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 3: 湛江蓝碳 ========== -->
+<article class="case-detail" id="case-3">
+  <div class="case-head">
+    <span class="case-emoji">🌊</span>
+    <div>
+      <h3>案例三 · 广东湛江红树林蓝碳交易<span class="case-tag domestic">国内 · 蓝碳</span></h3>
+      <p class="case-loc">📍 广东湛江 · 2021年6月完成全国首笔蓝碳交易</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>湛江拥有<strong>全国最大的红树林自然保护区</strong>，面积 6,687 公顷，居全国地级市之首。依托麻章太平岭头岛退塘还林工程，通过"多点破堤、系统贯通"恢复自然潮汐，科学筛选白骨壤、秋茄等乡土树种修复红树林。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>遵循 <strong>VCS + CCB</strong> 双重认证标准（符合核证碳标准+气候社区生物多样性标准）</li>
+          <li>核算方法基于 <strong>IPCC 2013 Wetlands Supplement</strong></li>
+          <li>碳库包括：地上生物量、地下生物量、枯落物、土壤有机碳</li>
+          <li>碳汇年变化量 CS = ΔC − CH₄ − N₂O（扣除甲烷与氧化亚氮排放）</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>2021年6月完成<strong>全国首笔蓝碳交易</strong>：北京市企业家环保基金会以 <strong>38.8 万元</strong>购买首批 <strong>5,880 吨 CO₂</strong>，收益全部反哺红树林修复</li>
+          <li>推动 2023 年<strong>《广东省红树林碳普惠方法学》</strong>出台（全国首个蓝碳碳普惠方法学）</li>
+          <li>2024年开展<strong>红树林碳汇开发权交易</strong>（廉江、雷州 224 公顷，20年期），预计净收益近千万元</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          验证了<strong>海洋蓝碳在中国交易平台上的可行性</strong>；碳普惠方法学+开发权交易的组合模式，为"一票通"中蓝碳品类的定价与交易机制提供了中国本土范本。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="chart-wrap"><div class="echart" id="chart-case3" style="height:280px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 红树林面积对比：首单项目 380 ha vs 2024 开发权 224 ha vs 保护区总面积 6,687 ha</p>
+      <div class="case-stats" style="margin-top:12px;">
+        <span class="case-stat-chip">5,880 tCO₂<small>首批减排量</small></span>
+        <span class="case-stat-chip">38.8 万元<small>成交金额</small></span>
+        <span class="case-stat-chip">近千万元<small>2024开发权净收益</small></span>
+      </div>
+      <div class="case-source-box">📖 <a href="http://app.m.mnr.gov.cn/dt/dfdt/202408/t20240813_2854715.html" target="_blank" rel="noopener">自然资源部 (2024)</a> <span class="src-sep">|</span> <a href="https://lyj.gd.gov.cn/news/forestry/content/post_4754838.html" target="_blank" rel="noopener">广东省林业局 (2025)</a></div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 4: 霞浦红树林 ========== -->
+<article class="case-detail" id="case-4">
+  <div class="case-head">
+    <span class="case-emoji">🌱</span>
+    <div>
+      <h3>案例四 · 福建霞浦红树林 CCER 项目<span class="case-tag domestic">国内 · 蓝碳</span></h3>
+      <p class="case-loc">📍 福建霞浦 · 2025年 · 首个海洋领域 CCER 项目</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>中国首个海洋领域 CCER（国家核证自愿减排量）项目落地福建霞浦，标志着海洋碳汇正式进入国内强制性与自愿性碳市场体系。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>采用 <strong>CCER 红树林营造方法学</strong>（2023年发布）</li>
+          <li>核算步骤：基准线清除量确定 → 项目清除量计算 → 泄漏情况确定 → 项目减排量核算</li>
+          <li>方法学提供生物量方程和关键参数默认值，降低监测成本</li>
+          <li>遵循额外性、保守性、可核查原则</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>预计 <strong>40 年计入期</strong>可产生约 <strong>32,466 吨 CO₂</strong> 减排量</li>
+          <li>开创海洋碳汇纳入国内碳市场的<strong>先例</strong></li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          蓝碳 CCER 方法学补齐了"一票通"的<strong>第三种碳票核算依据</strong>；红树林营造方法学的参数默认值设计，降低了蓝碳项目的开发门槛。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="chart-wrap"><div class="echart" id="chart-case4" style="height:300px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 40 年计入期累计减排量示意曲线（终点为方法学测算总量 ~32,466 tCO₂）</p>
+      <div class="case-source-box">📖 <a href="http://mp.weixin.qq.com/s?__biz=MzkwNjU2ODM0NA==&mid=2247552425&idx=1" target="_blank" rel="noopener">碳排放交易网 (2025)</a> <span class="src-sep">|</span> <a href="https://mp.weixin.qq.com/s?__biz=MzU4MTIzNTgyOA==&mid=2247494633&idx=1" target="_blank" rel="noopener">国家海洋信息中心 (2025)</a></div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 5: Mikoko Pamoja ========== -->
+<article class="case-detail" id="case-5">
+  <div class="case-head">
+    <span class="case-emoji">🏝</span>
+    <div>
+      <h3>案例五 · 肯尼亚 Mikoko Pamoja<span class="case-tag international">国际 · 蓝碳</span></h3>
+      <p class="case-loc">📍 肯尼亚 Gazi 湾 · 2012年启动 · 全球首个社区主导的红树林碳信用项目</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>由肯尼亚海洋与渔业研究所（KMFRI）和爱丁堡纳皮尔大学共同发起，针对红树林砍伐、海岸侵蚀和渔业衰退问题，用碳信用收入反哺社区发展。名称"Swahili"意为"Mangroves Together（红树林在一起）"。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>认证标准：<strong>Plan Vivo Foundation</strong>（社区主导型碳标准）</li>
+          <li>碳基线：KMFRI 提供碳储量科学基线和<strong>参考排放水平</strong>，持续技术监测</li>
+          <li>交易产品：Plan Vivo Certificates（PVCs），通过 ACES 机构进入自愿碳市场</li>
+          <li>社区环境教育：村会议、焦点小组、公示栏保障碳融资透明度</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>保护/修复 <strong>117 公顷</strong>红树林，种植 10,000+ 株幼苗</li>
+          <li>2013–2017 年避免排放 ~12,000 tCO₂</li>
+          <li>年碳信用收入约 <strong>$12,000</strong>，30%+ 投入社区发展（清洁饮水、学校教科书、屋顶、体育用品），惠及约 <strong>5,400 人</strong>和 700 名儿童</li>
+          <li>创造 200+ 直接/间接就业岗位</li>
+          <li>2017 年获联合国 <strong>Equator Prize</strong>，2023 年获联合国人物奖</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          小面积社区项目也能走通碳市场；<strong>社区分红机制</strong>（30%+ 收入反哺公益）与"碳汇锦旗"的公益属性高度契合——碳汇收入透明分配是公众信任的关键。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="chart-wrap"><div class="echart" id="chart-case5" style="height:280px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 碳信用收入分配示意：>30% 投入社区发展，其余用于项目运营与储备（具体比例未披露）</p>
+      <div class="case-stats" style="margin-top:12px;">
+        <span class="case-stat-chip">117 ha<small>保护面积</small></span>
+        <span class="case-stat-chip">~12,000 t<small>避免排放</small></span>
+        <span class="case-stat-chip">$12K/年<small>碳信用收入</small></span>
+        <span class="case-stat-chip">🏆 Equator Prize<small>2017年</small></span>
+      </div>
+      <div class="case-source-box">📖 <a href="https://www.planvivo.org" target="_blank" rel="noopener">Plan Vivo Foundation</a> <span class="src-sep">|</span> <a href="https://www.mangrovealliance.org/mikoko-pamoja/" target="_blank" rel="noopener">Mangrove Alliance</a> <span class="src-sep">|</span> <a href="https://www.napier.ac.uk/research-and-innovation/impact-case-studies/protecting-a-vital-ecological-resource-with-carbon-credits" target="_blank" rel="noopener">Edinburgh Napier University (2023)</a></div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 6: Australia Savanna ========== -->
+<article class="case-detail" id="case-6">
+  <div class="case-head">
+    <span class="case-emoji">🔥</span>
+    <div>
+      <h3>案例六 · 澳大利亚 Savanna Burning<span class="case-tag international">国际 · 草地碳汇</span></h3>
+      <p class="case-loc">📍 澳大利亚北部 · 2012年起 · 原住民火烧管理碳汇项目</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>基于澳大利亚北部原住民（Aboriginal）<strong>上千年传统火烧管理</strong>实践：通过早季低强度"冷火"形成马赛克式烧痕，减少晚季高强度野火，从而减少甲烷和氧化亚氮等温室气体排放。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>纳入澳大利亚碳信用单位（<strong>ACCU</strong>）计划</li>
+          <li>使用 <strong>Savanna Carbon Accounting Model（SavCAM）</strong>核算模型</li>
+          <li>2026年新增"封存 + 避免排放"双重方法学，首次将树木生物量内碳储量纳入核算</li>
+          <li>基线期 20 年；封存方法 25% 风险扣减（25年期）或 5%（100年期）；不确定性缓冲上限 10%</li>
+          <li>结合直升机航空点火等现代工具与传统知识</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li><strong>86 个项目</strong>，覆盖 <strong>3,490 万公顷</strong>（约占澳大利亚总面积 4.5%）</li>
+          <li>70% 土地由原住民企业拥有和经营</li>
+          <li>2012年以来减排约 <strong>1,110 万吨</strong>；年减排约 100 万吨，年收入约 <strong>5,900 万澳元</strong></li>
+          <li>创造 300+ 原住民 Ranger 岗位</li>
+          <li>CSIRO 预计新方法 25 年内可额外减排 <strong>1.8 亿吨</strong>，带来约 77 亿澳元经济价值</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          SavCAM <strong>同时核算避免排放与碳封存</strong>，为"一票通"跨品类核算提供了技术参照；原住民参与+文化保护+碳收入的<strong>三赢模式</strong>，可借鉴到国内草原牧区。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="chart-wrap"><div class="echart" id="chart-case6" style="height:280px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 减排规模对比（万吨 CO₂e）：当前累计 1,110 万 vs CSIRO 预测未来 25 年新增 18,000 万</p>
+      <div class="case-stats" style="margin-top:12px;">
+        <span class="case-stat-chip">86 项目<small>注册规模</small></span>
+        <span class="case-stat-chip">3,490 万ha<small>覆盖面积</small></span>
+        <span class="case-stat-chip">$5,900万/年<small>碳收入</small></span>
+        <span class="case-stat-chip">300+ Ranger<small>就业</small></span>
+      </div>
+      <div class="case-source-box">📖 <a href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/accu-scheme-methods/savanna-fire-management-methods" target="_blank" rel="noopener">Australian Clean Energy Regulator (2026)</a> <span class="src-sep">|</span> <a href="https://www.dcceew.gov.au/climate-change/emissions-reduction/accu-scheme/methods/savanna-fire-management-methods-under-development/accounting-model-release" target="_blank" rel="noopener">DCCEEW SavCAM (2026)</a> <span class="src-sep">|</span> <a href="https://www.tasmanenvironmental.com.au/insights/savanna-burning-fire-management-protecting-country-culture-and-community/" target="_blank" rel="noopener">Tasman Environmental Markets</a></div>
+    </div>
+  </div>
+</article>
+
+<!-- ========== CASE 7: US Grassland ========== -->
+<article class="case-detail" id="case-7">
+  <div class="case-head">
+    <span class="case-emoji">🌱</span>
+    <div>
+      <h3>案例七 · 美国草地碳汇协议（Grassland Carbon Protocol）<span class="case-tag international">国际 · 草地碳汇</span></h3>
+      <p class="case-loc">📍 美国大平原 · VCS 体系 · VM0021 方法学</p>
+    </div>
+  </div>
+  <div class="case-body">
+    <div class="case-left">
+      <div class="case-block">
+        <div class="block-title">📌 背景</div>
+        <p>美国大平原草地因农业开垦大量退化，土壤碳大量流失。草地碳汇协议鼓励通过管理措施恢复土壤有机碳，既应对气候变化又改善土地健康。</p>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🔬 核算方法</div>
+        <ul>
+          <li>基于 <strong>VCS VM0021</strong> 草地碳汇方法学</li>
+          <li>通过<strong>免耕、轮牧、补播本土草种</strong>等管理措施增加土壤有机碳</li>
+          <li>主要监测指标：土壤有机碳（SOC）变化，以 0–30 cm 土层为主</li>
+          <li>草地碳汇以<strong>土壤碳库</strong>为核心——90% 以上碳储存在土壤中</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">🏆 成效</div>
+        <ul>
+          <li>建立了国际草地碳汇核算的<strong>行业参照</strong></li>
+          <li>验证了管理型草地碳汇（非造林）的可行性</li>
+        </ul>
+      </div>
+      <div class="case-block">
+        <div class="block-title">💡 借鉴意义</div>
+        <div class="case-insight">
+          草地碳汇核算高度依赖<strong>土壤长期监测</strong>，成本较高但碳更持久稳定；可采用模型辅助估算降低成本——这正是"一票通"中草票核算体系的<strong>成本控制参考</strong>。
+        </div>
+      </div>
+    </div>
+    <div class="case-right">
+      <div class="block-title">📊 关键数据 & 可视化</div>
+      <div class="chart-wrap"><div class="echart" id="chart-case7" style="height:280px;"></div></div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">▲ 草地碳库构成：>90% 碳储存在土壤中，植被碳占比极小（IPCC 数据）</p>
+      <div class="case-stats" style="margin-top:12px;">
+        <span class="case-stat-chip">VM0021<small>VCS方法学</small></span>
+        <span class="case-stat-chip">0–30 cm<small>土壤监测深度</small></span>
+        <span class="case-stat-chip">>90% 土壤碳<small>碳库构成</small></span>
+      </div>
+      <div class="case-source-box">📖 <a href="https://verra.org/methodologies/vm0021-soil-carbon-quantification-methodology/" target="_blank" rel="noopener">VERRA VM0021 方法学</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1002/eap.1473" target="_blank" rel="noopener">Conant et al. (2017), Ecological Applications 27(2):662-668</a></div>
+    </div>
+  </div>
+</article>
+
+</section>
+
+<!-- ===== SECTION 8: 启示 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">8</span> 启示与建议</h2>
+<div class="insight-grid">
+  <div class="insight-card">
+    <h4>🔑 核心发现</h4>
+    <p>三类碳汇<strong>不可简单 1:1 兑换</strong>。蓝碳单位面积固碳速率是草地的 5–10 倍，碳持久性是森林的 30–50 倍。"一票通"跨品类换算机制需综合考量<strong>碳量、持久性系数、可逆性风险、协同效益</strong>四个维度，而非仅看碳吨数。</p>
+  </div>
+  <div class="insight-card">
+    <h4>💡 技术建议</h4>
+    <p>采用 IPCC Tier 2 作为最低核算标准（中国特定参数），蓝碳项目争取 Tier 3（持续监测+建模）。借鉴澳大利亚 SavCAM 同时核算封存与避免排放的做法，按持久性系数和风险扣减率加权折算。</p>
+  </div>
+  <div class="insight-card">
+    <h4>🌍 案例启示</h4>
+    <p>Mikoko Pamoja 的社区分红模式、澳大利亚原住民参与的 Savanna Burning 碳汇模式，为"碳汇锦旗"的公众参与设计、公益属性强化提供了参考路径。碳汇收入反哺社区发展可增强公众参与意愿。</p>
+  </div>
+  <div class="insight-card">
+    <h4>🎯 创新机遇</h4>
+    <p>目前全球尚无成熟的跨生态系统碳汇价值统一换算标准。整合 IPCC + VCS + CCER 已有方法学框架，聚焦"如何让不同方法学核算出的碳汇量在一张票上互相比较、合理兑换"——<strong>"一票通"若率先实现，将是国际首创</strong>。</p>
+  </div>
+</div>
+<div class="source-badge">📚 <strong>来源：</strong>本章分析基于以下文献的综合推演：<a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001)</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span> <a href="https://www.dcceew.gov.au/climate-change/emissions-reduction/accu-scheme/methods/savanna-fire-management-methods-under-development/accounting-model-release" target="_blank" rel="noopener">DCCEEW SavCAM (2026)</a> <span class="src-sep">|</span> <a href="https://www.planvivo.org" target="_blank" rel="noopener">Plan Vivo Mikoko Pamoja</a></div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>碳核算与储碳能力对比研究报告 · 课题 #3 · 2026年7月29日</p>
+  <p>所有数据均标注具体来源（IPCC、CCER、学术期刊、官方新闻等）</p>
+</footer>
+
+</div><!-- .page -->
+
+<script>
+/* ===== Theme toggle ===== */
+(function(){
+  const body = document.body;
+  const btns = document.querySelectorAll('.theme-btn');
+  const saved = localStorage.getItem('viz-theme') || 'light';
+  body.setAttribute('data-theme', saved);
+  btns.forEach(b => b.classList.toggle('active', b.dataset.theme === saved));
+  btns.forEach(b => {
+    b.addEventListener('click', () => {
+      body.setAttribute('data-theme', b.dataset.theme);
+      localStorage.setItem('viz-theme', b.dataset.theme);
+      btns.forEach(x => x.classList.toggle('active', x.dataset.theme === b.dataset.theme));
+    });
+  });
+})();
+
+/* ===== ECharts ===== */
+const charts = {};
+function getColors() {
+  const s = getComputedStyle(document.body);
+  return {
+    forest: s.getPropertyValue('--forest').trim(),
+    grassland: s.getPropertyValue('--grassland').trim(),
+    bluecarbon: s.getPropertyValue('--bluecarbon').trim(),
+    textSec: s.getPropertyValue('--text-secondary').trim(),
+    textMut: s.getPropertyValue('--text-muted').trim(),
+    gridline: s.getPropertyValue('--gridline').trim(),
+    surface: s.getPropertyValue('--surface-1').trim(),
+  };
+}
+function baseTip() {
+  return {
+    trigger: 'axis', axisPointer: { type: 'shadow' },
+    backgroundColor: getColors().surface,
+    borderColor: getColors().gridline,
+    textStyle: { color: getColors().textSec, fontSize: 13 }
+  };
+}
+function init(id, option) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  if (charts[id]) charts[id].dispose();
+  const c = echarts.init(el);
+  c.setOption(option);
+  charts[id] = c;
+  return c;
+}
+function rangeBarOption(C, cats, ranges, uppers, labels, unit) {
+  return {
+    tooltip: baseTip(),
+    grid: { left: 90, right: 70, top: 10, bottom: 30 },
+    xAxis: { type: 'value', axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: cats,
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 13, fontWeight: 600 } },
+    series: [
+      { type: 'bar', stack: 'r', data: ranges, barWidth: 18,
+        itemStyle: { color: 'rgba(120,120,120,0.12)', borderColor: 'transparent' } },
+      { type: 'bar', stack: 'r', data: uppers.map((v, i) => ({
+          value: v,
+          itemStyle: { color: [C.bluecarbon, C.forest, C.grassland][i], borderRadius: [0,4,4,0] }
+        })), barWidth: 18,
+        label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 600,
+          formatter: p => labels[p.dataIndex] }
+      }
+    ]
+  };
+}
+function initAllCharts() {
+  const C = getColors();
+
+  // 1. 储碳密度
+  init('chart-density', rangeBarOption(C, ['蓝碳','森林','草地'], [200,100,50], [800,300,200], ['200–1,000','100–400','50–250'], 'tC/ha'));
+
+  // 2. 年固碳速率
+  init('chart-rate', rangeBarOption(C, ['蓝碳','森林','草地'], [1,0.5,0.1], [7,4.5,0.9], ['1.0–8.0','0.5–5.0','0.1–1.0'], 'tC/ha/yr'));
+
+  // 3. 碳持久性
+  init('chart-permanence', rangeBarOption(C, ['蓝碳','草地','森林'], [1000,100,50], [5000,900,150], ['1,000–6,000+','100–1,000','50–200'], '年'));
+
+  // 4. 雷达图
+  init('chart-radar', {
+    tooltip: {},
+    legend: { bottom: 0, data: ['森林','草地','蓝碳'], textStyle: { color: C.textSec, fontSize: 12 } },
+    radar: { center: ['50%','52%'], radius: '66%',
+      indicator: [
+        { name: '储碳密度', max: 10 }, { name: '固碳速率', max: 10 },
+        { name: '碳持久性', max: 10 }, { name: 'NPP总量', max: 10 },
+        { name: '监测便利性', max: 10 }, { name: 'CCER成熟度', max: 10 }
+      ],
+      axisName: { color: C.textSec, fontSize: 12 },
+      splitLine: { lineStyle: { color: C.gridline } },
+      axisLine: { lineStyle: { color: C.gridline } } },
+    series: [{ type: 'radar', data: [
+      { value: [5,4,3,9,7,9], name: '森林', areaStyle: { color: 'rgba(42,120,214,0.12)' },
+        lineStyle: { color: C.forest, width: 2 }, itemStyle: { color: C.forest }, symbolSize: 6 },
+      { value: [3,2,6,6,5,5], name: '草地', areaStyle: { color: 'rgba(235,104,52,0.12)' },
+        lineStyle: { color: C.grassland, width: 2 }, itemStyle: { color: C.grassland }, symbolSize: 6 },
+      { value: [9,9,10,2,4,6], name: '蓝碳', areaStyle: { color: 'rgba(27,175,122,0.12)' },
+        lineStyle: { color: C.bluecarbon, width: 2 }, itemStyle: { color: C.bluecarbon }, symbolSize: 6 }
+    ]}]
+  });
+
+  // 5. IPCC Tier 误差对比
+  init('chart-tier', {
+    tooltip: baseTip(),
+    grid: { left: 90, right: 50, top: 10, bottom: 30 },
+    xAxis: { type: 'value', name: '默认系数误差 (%)', nameTextStyle: { color: C.textMut },
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: ['Tier 1 · 地上生物量','Tier 1 · 土壤有机碳'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [{
+      type: 'bar', data: [
+        { value: 50, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } },
+        { value: 90, itemStyle: { color: '#e34948', borderRadius: [0,4,4,0] } }
+      ], barWidth: 20,
+      label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 700,
+        formatter: p => '±' + p.value + '%' }
+    }]
+  });
+
+  // ===== 案例图表 =====
+
+  // 案例1: 三明 林票1.0 vs 2.0 定性对比
+  init('chart-case1', {
+    tooltip: baseTip(),
+    legend: { bottom: 0, data: ['林票1.0','林票2.0'], textStyle: { color: C.textSec, fontSize: 12 } },
+    grid: { left: 60, right: 30, top: 10, bottom: 40 },
+    xAxis: { type: 'value', max: 10, axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: ['电子化','市场化交易','标准化','跨区域流通'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [
+      { name: '林票1.0', type: 'bar', barWidth: 14,
+        data: [2, 3, 3, 2], itemStyle: { color: 'rgba(120,120,120,0.5)' } },
+      { name: '林票2.0', type: 'bar', barWidth: 14,
+        data: [9, 9, 8, 8], itemStyle: { color: C.forest, borderRadius: [0,4,4,0] } }
+    ]
+  });
+
+  // 案例2: 达茂旗 样地布设密度
+  init('chart-case2', {
+    tooltip: baseTip(),
+    grid: { left: 110, right: 50, top: 10, bottom: 30 },
+    xAxis: { type: 'value', name: 'hm²/样地', nameTextStyle: { color: C.textMut },
+      axisLine: { lineStyle: { color: C.gridline } }, axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: ['项目 ≥ 600 hm²','项目 100–600 hm²','项目 ≤ 100 hm²'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [{
+      type: 'bar', barWidth: 20,
+      data: [
+        { value: 10, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } },
+        { value: 5, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } },
+        { value: 3, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } }
+      ],
+      label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 600,
+        formatter: p => '每' + p.value + ' hm² 设1样地' }
+    }]
+  });
+
+  // 案例3: 湛江 红树林面积对比
+  init('chart-case3', {
+    tooltip: baseTip(),
+    grid: { left: 110, right: 60, top: 10, bottom: 30 },
+    xAxis: { type: 'value', name: '公顷 (ha)', nameTextStyle: { color: C.textMut },
+      axisLine: { lineStyle: { color: C.gridline } }, axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: ['保护区总面积','2021首单项目','2024碳汇开发权'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [{
+      type: 'bar', barWidth: 20,
+      data: [
+        { value: 6687, itemStyle: { color: C.bluecarbon, borderRadius: [0,4,4,0] } },
+        { value: 380, itemStyle: { color: C.bluecarbon, borderRadius: [0,4,4,0] } },
+        { value: 224, itemStyle: { color: C.bluecarbon, borderRadius: [0,4,4,0] } }
+      ],
+      label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 600,
+        formatter: p => p.value + ' ha' }
+    }]
+  });
+
+  // 案例4: 霞浦 40年累计减排示意
+  init('chart-case4', {
+    tooltip: baseTip(),
+    grid: { left: 60, right: 40, top: 10, bottom: 35 },
+    xAxis: { type: 'category', boundaryGap: false,
+      data: ['0年','5年','10年','15年','20年','30年','40年'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'value', name: 'tCO₂', nameTextStyle: { color: C.textMut },
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textMut, fontSize: 11 } },
+    series: [{
+      type: 'line', smooth: true, symbol: 'circle', symbolSize: 6,
+      data: [0, 1964, 4987, 8635, 12694, 22110, 32466],
+      lineStyle: { color: C.bluecarbon, width: 2 },
+      itemStyle: { color: C.bluecarbon },
+      areaStyle: { color: 'rgba(27,175,122,0.10)' },
+      label: { show: true, position: 'top', color: C.textSec, fontSize: 11,
+        formatter: p => p.dataIndex === 6 ? '32,466 tCO₂' : '' }
+    }]
+  });
+
+  // 案例5: Mikoko 收入分配
+  init('chart-case5', {
+    tooltip: { trigger: 'item',
+      backgroundColor: C.surface, borderColor: C.gridline,
+      textStyle: { color: C.textSec, fontSize: 13 },
+      formatter: '{b}: {d}%' },
+    legend: { bottom: 0, textStyle: { color: C.textSec, fontSize: 12 } },
+    series: [{
+      type: 'pie', radius: ['45%','70%'], center: ['50%','45%'],
+      itemStyle: { borderRadius: 4, borderColor: C.surface, borderWidth: 2 },
+      label: { color: C.textSec, fontSize: 12 },
+      data: [
+        { value: 30, name: '社区发展（>30%）', itemStyle: { color: C.bluecarbon } },
+        { value: 70, name: '项目运营与储备', itemStyle: { color: 'rgba(120,120,120,0.4)' } }
+      ]
+    }]
+  });
+
+  // 案例6: 澳洲 减排规模
+  init('chart-case6', {
+    tooltip: baseTip(),
+    grid: { left: 110, right: 70, top: 10, bottom: 30 },
+    xAxis: { type: 'value', name: '万吨 CO₂e', nameTextStyle: { color: C.textMut },
+      axisLine: { lineStyle: { color: C.gridline } }, axisLabel: { color: C.textMut, fontSize: 11 } },
+    yAxis: { type: 'category', data: ['CSIRO预测·25年新增','2012年至今累计'],
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [{
+      type: 'bar', barWidth: 22,
+      data: [
+        { value: 18000, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } },
+        { value: 1110, itemStyle: { color: C.grassland, borderRadius: [0,4,4,0] } }
+      ],
+      label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 600,
+        formatter: p => p.value.toLocaleString() + ' 万t' }
+    }]
+  });
+
+  // 案例7: 美国草地 碳库构成
+  init('chart-case7', {
+    tooltip: { trigger: 'item',
+      backgroundColor: C.surface, borderColor: C.gridline,
+      textStyle: { color: C.textSec, fontSize: 13 },
+      formatter: '{b}: {d}%' },
+    legend: { bottom: 0, textStyle: { color: C.textSec, fontSize: 12 } },
+    series: [{
+      type: 'pie', radius: ['45%','70%'], center: ['50%','45%'],
+      itemStyle: { borderRadius: 4, borderColor: C.surface, borderWidth: 2 },
+      label: { color: C.textSec, fontSize: 12 },
+      data: [
+        { value: 90, name: '土壤碳（>90%）', itemStyle: { color: C.grassland } },
+        { value: 10, name: '植被碳', itemStyle: { color: 'rgba(120,120,120,0.4)' } }
+      ]
+    }]
+  });
+}
+
+initAllCharts();
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => Object.values(charts).forEach(c => { try { c.resize(); } catch(e){} }), 200);
+});
+const obs = new MutationObserver(() => setTimeout(initAllCharts, 100));
+obs.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+</body>
+</html>
