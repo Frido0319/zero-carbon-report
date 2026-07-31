@@ -246,6 +246,43 @@ body {
 }
 .case-nav a:hover { border-color: var(--forest); color: var(--forest); }
 
+/* ===== Paper cards (section 9) ===== */
+.paper-group { margin-bottom: 20px; }
+.paper-group-title {
+  font-size: 14px; font-weight: 700; margin: 18px 0 10px;
+  display: flex; align-items: center; gap: 8px; color: var(--text-primary);
+}
+.paper-group-title .pg-tag {
+  font-size: 11px; padding: 2px 10px; border-radius: 100px; font-weight: 600;
+}
+.paper-group-title .pg-tag.zh { background: var(--forest-wash); color: var(--forest); }
+.paper-group-title .pg-tag.intl { background: var(--grassland-wash); color: var(--grassland); }
+.paper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.paper-card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.paper-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+.paper-card .pc-title { font-size: 14px; font-weight: 700; line-height: 1.4; }
+.paper-card .pc-authors { font-size: 12px; color: var(--text-secondary); }
+.paper-card .pc-journal { font-size: 12px; color: var(--forest); font-weight: 600; }
+.paper-card .pc-key { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.paper-card .pc-key strong { color: var(--text-primary); }
+.paper-card .pc-link {
+  margin-top: auto; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--forest);
+  text-decoration: none; padding-top: 10px; border-top: 1px solid var(--gridline);
+}
+.paper-card .pc-link:hover { text-decoration: underline; }
+.gap-banner {
+  background: var(--bluecarbon-wash); border: 1px solid var(--bluecarbon);
+  border-radius: var(--radius); padding: 20px 24px; margin-top: 24px;
+}
+.gap-banner h4 { font-size: 15px; font-weight: 700; color: var(--bluecarbon); margin-bottom: 8px; }
+.gap-banner p { font-size: 13px; color: var(--text-primary); line-height: 1.7; }
+
 /* ===== Footer ===== */
 .footer { text-align: center; padding: 60px 0 24px; color: var(--text-muted); font-size: 12px; }
 .footer p { margin: 4px 0; }
@@ -872,6 +909,138 @@ body {
 <div class="source-badge">📚 <strong>来源：</strong>本章分析基于以下文献的综合推演：<a href="https://archive.ipcc.ch/ipccreports/tar/wg1/096.htm" target="_blank" rel="noopener">IPCC TAR (2001)</a> <span class="src-sep">|</span> <a href="https://doi.org/10.1890/110004" target="_blank" rel="noopener">Mcleod et al. (2011)</a> <span class="src-sep">|</span> <a href="https://www.dcceew.gov.au/climate-change/emissions-reduction/accu-scheme/methods/savanna-fire-management-methods-under-development/accounting-model-release" target="_blank" rel="noopener">DCCEEW SavCAM (2026)</a> <span class="src-sep">|</span> <a href="https://www.planvivo.org" target="_blank" rel="noopener">Plan Vivo Mikoko Pamoja</a></div>
 </section>
 
+<!-- ===== SECTION 9: 相关学术研究 ===== -->
+<section>
+<h2 class="section-title"><span class="section-num">9</span> 相关学术研究全景</h2>
+<p class="section-desc">检索国内外学术数据库（中国知网、Web of Science、Google Scholar、ScienceDirect 等），与你课题方向直接相关的研究。核心结论：<strong>"一票通"（森林+草地+海洋碳票统一换算）在全球范围内尚无直接研究，属于学术空白。</strong></p>
+
+<div class="chart-section">
+  <h3>9.1 研究覆盖地图 — 现有研究在哪，空白在哪</h3>
+  <p class="chart-note">横轴=研究对象（生态系统/体系层次），纵轴=研究维度。每个点代表一篇论文，⭐ 绿星标记位置 = 本课题"一票通"的学术空白点。</p>
+  <div class="chart-wrap"><div class="echart" id="chart-papers" style="height:440px;"></div></div>
+  <div class="source-badge">📚 基于 2026年7月 网络学术检索（CNKI / ScienceDirect / PubMed / 期刊官网）绘制</div>
+</div>
+
+<div class="paper-group">
+  <div class="paper-group-title"><span class="pg-tag zh">国内研究</span>碳票互认 / 环境权益产品衔接</div>
+  <div class="paper-grid">
+
+    <div class="paper-card">
+      <div class="pc-title">电碳市场背景下典型环境权益产品衔接互认机制及关键技术</div>
+      <div class="pc-authors">尚楠、陈政、冷媛 · 2025</div>
+      <div class="pc-journal">中国电机工程学报</div>
+      <div class="pc-key">⭐ <strong>最接近本课题</strong>。提出以"碳减排效益"为统一当量构建碳交易、绿证、绿电等产品互认体系，明确类比"国际货币结算体系/汇率制度"。</div>
+      <a class="pc-link" href="https://kns.cnki.net/kns8s/defaultresult/index?kw=电碳市场背景下典型环境权益产品衔接互认机制" target="_blank" rel="noopener">🔗 知网查看全文 →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">碳排市场与碳汇市场之间当量协同机制的仿真验证</div>
+      <div class="pc-authors">张翼飞、薛禹胜、黄杰、薛峰 · 2025</div>
+      <div class="pc-journal">电力系统自动化</div>
+      <div class="pc-key">构建"分类管控+当量协同"框架：减排与增汇两类措施之间通过<strong>当量换算</strong>协同，验证机制有效性。</div>
+      <a class="pc-link" href="https://opaj.napstic.cn/periodicalArticle/0120250501523662" target="_blank" rel="noopener">🔗 期刊全文 →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">碳票交易促进林业碳汇生态产品价值实现的机制、困境与路径研究</div>
+      <div class="pc-authors">曹先磊、刘晨欣、程宝栋 · 2026</div>
+      <div class="pc-journal">北京林业大学学报（社会科学版）</div>
+      <div class="pc-key">基于<strong>11省47个碳票案例</strong>：安徽已与沪苏浙建立碳票互认试点，2023年三明-上海完成2万吨跨区域碳票交易。</div>
+      <a class="pc-link" href="https://sheke.bjfu.edu.cn/article/doi/10.13931/j.cnki.bjfuss.2025194" target="_blank" rel="noopener">🔗 期刊全文 →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">林业碳票发展过程与运行机制及成效</div>
+      <div class="pc-authors">黄睿智、于涛、颜强、熊康、何友均 · 2025</div>
+      <div class="pc-journal">世界林业研究</div>
+      <div class="pc-key">系统梳理林业碳票发展历程与运行机制，明确<strong>"地区间互认难题"</strong>是核心困境，建议国家层面顶层设计。</div>
+      <a class="pc-link" href="https://journals.caf.ac.cn/sjlyyj/article/doi/10.13348/j.cnki.sjlyyj.2025.0073.y" target="_blank" rel="noopener">🔗 期刊全文 →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">发展生态碳汇市场助推实现"碳中和"</div>
+      <div class="pc-authors">范振林、宋猛、刘智超 · 2021</div>
+      <div class="pc-journal">中国国土资源经济</div>
+      <div class="pc-key">提出构建统一、可监测、可计量的<strong>自然资源资产产权价格形成机制</strong>，开展生态碳汇实物量与价值量核算（被引22次）。</div>
+      <a class="pc-link" href="http://dianda.cqvip.com/Qikan/Article/Detail?id=7106215438" target="_blank" rel="noopener">🔗 维普期刊 →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">碳汇交易视角下中国滨海湿地蓝色碳汇价值实现机制及路径研究</div>
+      <div class="pc-authors">李淑娟、丁佳琦、隋玉正 · 2023</div>
+      <div class="pc-journal">海洋环境科学</div>
+      <div class="pc-key">指出中国碳汇交易存在<strong>核算体系不统一、市场机制不完善</strong>问题，提出建立统一核算标准体系。</div>
+      <a class="pc-link" href="https://www.cnknowledge.com/thesisDetail?type=0&id=1646695212338253824" target="_blank" rel="noopener">🔗 全文详情 →</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="paper-group">
+  <div class="paper-group-title"><span class="pg-tag intl">国际研究</span>碳市场"汇率"连接理论 / 核算方法学</div>
+  <div class="paper-grid">
+
+    <div class="paper-card">
+      <div class="pc-title">Linking Carbon Markets with Different Initial Conditions</div>
+      <div class="pc-authors">Woerman, Burtraw, Munnings & Palmer · 2023</div>
+      <div class="pc-journal">Journal of Environmental Economics and Management</div>
+      <div class="pc-key">⭐ 数学证明：<strong>1:1 完全互换很少是社会最优</strong>，引入"汇率/交易比"比完全互换更优——为"一票通"不搞1:1兑换提供核心理论依据。</div>
+      <a class="pc-link" href="https://www.sciencedirect.com/science/article/abs/pii/S0095069623000384" target="_blank" rel="noopener">🔗 ScienceDirect →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">Commodity or Currency? How Carbon Credits Should Be Traded</div>
+      <div class="pc-authors">Button · 2008</div>
+      <div class="pc-journal">Harvard Environmental Law Review</div>
+      <div class="pc-key">提出<strong>"碳信用货币化"</strong>：异构碳信用应按"汇率"交易而非按吨数1:1互换，避免环境标准"逐底竞争"。</div>
+      <a class="pc-link" href="http://journals.law.harvard.edu/elr/wp-content/uploads/sites/79/2019/07/32.2-Button.pdf" target="_blank" rel="noopener">🔗 哈佛ELR全文PDF →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">Commodity or Currency: Linked Cap-and-Trade Schemes（学位论文）</div>
+      <div class="pc-authors">Yam · 2016 · University of Calgary</div>
+      <div class="pc-journal">LLM Thesis</div>
+      <div class="pc-key">系统论证碳信用"汇率模型"：碳单位差异化价值通过<strong>碳汇率校准</strong>，实现真正可互换（fungible）。</div>
+      <a class="pc-link" href="https://prism.ucalgary.ca/items/fb6259e5-affe-426b-97fe-4def53e17b02/full" target="_blank" rel="noopener">🔗 Calgary PRISM →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">Additionality in Blue Carbon Ecosystems: Recommendations for a Universally Applicable Accounting Methodology</div>
+      <div class="pc-authors">Houston, Kennedy & Austin · 2024</div>
+      <div class="pc-journal">Global Change Biology</div>
+      <div class="pc-key">对比 <strong>VERRA VM0033 / IPCC 2013湿地增补 / 澳大利亚BlueCAM</strong> 三大蓝碳核算体系的"额外性"处理差异。</div>
+      <a class="pc-link" href="https://pubmed.ncbi.nlm.nih.gov/39494493/" target="_blank" rel="noopener">🔗 PubMed →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">Creation of a Global Carbon Market: Carbon Credit Units and Parity of Pricing</div>
+      <div class="pc-authors">Oxford Institute for Energy Studies · 2023</div>
+      <div class="pc-journal">Oxford Energy Insight 136</div>
+      <div class="pc-key">碳单位四参数（<strong>注册机构/来源/方法学/年份</strong>）决定价值差异——方法学多样性是碳市场碎片化的根源。</div>
+      <a class="pc-link" href="https://www.oxfordenergy.org/wpcms/wp-content/uploads/2023/10/Insight-136-Creation-of-a-global-carbon-market.pdf" target="_blank" rel="noopener">🔗 OIES全文PDF →</a>
+    </div>
+
+    <div class="paper-card">
+      <div class="pc-title">巴黎协定第6条 · 相应调整机制（Corresponding Adjustments）</div>
+      <div class="pc-authors">UNFCCC · 2015–2025</div>
+      <div class="pc-journal">《巴黎协定》国际规则</div>
+      <div class="pc-key">跨境碳单位转移须进行<strong>相应调整防双重计算</strong>——"一票通"跨品类/跨区域流通的规则基础。</div>
+      <a class="pc-link" href="https://unfccc.int/process/the-paris-agreement/cooperative-implementation" target="_blank" rel="noopener">🔗 UNFCCC →</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="gap-banner">
+  <h4>🎯 研究空白 = 你们的创新空间</h4>
+  <p>
+    ① <strong>草地/草票：没有任何学术论文</strong>以草票为独立研究对象（仅有政策新闻）；<br>
+    ② <strong>跨生态系统三票统一换算：没有任何论文</strong>将森林、草地、海洋碳票放在同一"汇率"框架下研究——国内仅有同类产品跨区域互认（如安徽-沪苏浙），国际仅有理论层面的"碳汇率"模型；<br>
+    ③ 因此，"<strong>一票通"若率先完成"林票+草票+海洋碳票"统一价值换算机制研究，将是全球首个跨生态系统碳票互通研究</strong>，兼具理论创新与政策示范价值，建议在申报书中突出此点。
+  </p>
+</div>
+</section>
+
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
   <p>碳核算与储碳能力对比研究报告 · 课题 #3 · 2026年7月29日</p>
@@ -1125,6 +1294,63 @@ function initAllCharts() {
       label: { show: true, position: 'right', color: C.textSec, fontSize: 12, fontWeight: 600,
         formatter: p => p.value.toLocaleString() + ' 万t' }
     }]
+  });
+
+  // ===== 研究覆盖地图 =====
+  const xCat = ['森林碳票','草地碳票','海洋蓝碳','跨品类互认','碳市场连接'];
+  const yCat = ['核算方法','制度与机制','价值换算与互认'];
+  init('chart-papers', {
+    tooltip: {
+      formatter: p => {
+        const d = p.data;
+        return `<strong>${d[3]}</strong><br/>${d[4]}<br/>${d[5]}`;
+      },
+      backgroundColor: C.surface, borderColor: C.gridline,
+      textStyle: { color: C.textSec, fontSize: 12 }
+    },
+    legend: { bottom: 0, data: ['国内研究','国际研究','本课题位置'], textStyle: { color: C.textSec, fontSize: 12 } },
+    grid: { left: 110, right: 30, top: 20, bottom: 50 },
+    xAxis: { type: 'category', data: xCat,
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 11, interval: 0, rotate: 0 },
+      splitLine: { show: true, lineStyle: { color: C.gridline } } },
+    yAxis: { type: 'category', data: yCat,
+      axisLine: { lineStyle: { color: C.gridline } },
+      axisLabel: { color: C.textSec, fontSize: 12, fontWeight: 600 } },
+    series: [
+      { name: '国内研究', type: 'scatter', symbolSize: 16,
+        data: [
+          [0, 1, 1, '黄睿智 2025', '林业碳票运行机制', '世界林业研究'],
+          [0, 1, 1, '曹先磊 2026', '11省47案例·互认试点', '北林学报'],
+          [2, 1, 1, '李淑娟 2023', '滨海湿地蓝碳价值实现', '海洋环境科学'],
+          [3, 1, 1, '范振林 2021', '生态碳汇市场统一核算', '中国国土资源经济'],
+          [3, 2, 1, '尚楠 2025', '环境权益产品互认·汇率类比', '中国电机工程学报'],
+          [4, 2, 1, '张翼飞 2025', '碳排/碳汇市场当量协同', '电力系统自动化']
+        ],
+        itemStyle: { color: C.forest },
+        label: { show: true, position: 'top', color: C.forest, fontSize: 10, formatter: p => p.data[3].split(' ')[0] } },
+      { name: '国际研究', type: 'scatter', symbolSize: 16,
+        data: [
+          [2, 0, 1, 'Houston 2024', '蓝碳核算方法学对比', 'Global Change Biology'],
+          [4, 0, 1, 'OIES 2023', '碳单位四参数', 'Oxford Energy'],
+          [4, 2, 1, 'Woerman 2023', '汇率连接优于1:1', 'JEEM'],
+          [4, 2, 1, 'Button 2008', '碳信用货币化', 'Harvard ELR'],
+          [4, 2, 1, 'Yam 2016', '碳汇率校准模型', 'Calgary LLM']
+        ],
+        itemStyle: { color: C.grassland },
+        label: { show: true, position: 'top', color: C.grassland, fontSize: 10, formatter: p => p.data[3].split(' ')[0] } },
+      { name: '本课题位置', type: 'scatter', symbolSize: 26,
+        symbol: 'pin',
+        data: [
+          [1, 0, 1, '草票核算·空白', '无学术研究', '研究空白'],
+          [1, 1, 1, '草票制度·空白', '无学术研究', '研究空白'],
+          [1, 2, 1, '草票互认·空白', '无学术研究', '研究空白'],
+          [3, 2, 1, '三票互通换算·空白', '林+草+海洋 一票通', '本课题创新点']
+        ],
+        itemStyle: { color: '#e34948' },
+        label: { show: true, position: 'bottom', color: '#e34948', fontSize: 10, fontWeight: 600,
+          formatter: p => p.dataIndex === 3 ? '⭐ 一票通' : '空白' } }
+    ]
   });
 
   // 案例7: 美国草地 碳库构成
