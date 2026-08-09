@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三票互通机制设计方案 — 林票·草票·蓝碳票跨生态碳汇凭证互通</title>
+<meta name="description" content="首届全国大学生零碳科技创新大赛 · 开放赛道·方向4机制促碳 · 三票（林票/草票/蓝碳票）跨生态系统碳汇凭证互通机制设计">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+<style>
+:root{
+  --forest:#2d6a4f; --forest2:#40916c; --grass:#95d5b2; --grass2:#74c69d;
+  --blue:#1d6fd6; --sky:#a8d5f5; --ink:#16241d; --ink2:#4a5d52;
+  --bg:#f3f8f5; --card:#ffffff; --line:#dbe8e1; --warn:#b08900; --warnbg:#fff8e1;
+  --shadow:0 2px 10px rgba(22,36,29,.06);
+  --radius:14px;
+  --font:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+.container{max-width:1180px;margin:0 auto;padding:0 22px}
+a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--blue)}
+a.src{color:var(--blue);font-size:.82em;border-bottom:1px dashed #9dc6f0;white-space:nowrap}
+a.src:hover{border-bottom-style:solid}
+sup{font-size:.72em;margin-left:1px}
+
+/* ===== 头部 ===== */
+header{background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 55%,#1d6fd6 140%);color:#fff;padding:58px 0 46px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%)}
+.badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);padding:5px 14px;border-radius:999px;font-size:.82em;letter-spacing:.06em;margin-bottom:18px}
+header h1{font-size:2.15rem;font-weight:800;line-height:1.35;letter-spacing:.01em}
+header .sub{font-size:1.05rem;opacity:.92;margin-top:10px}
+.tags{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+.tags span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:8px;font-size:.8em}
+
+/* ===== 导航 ===== */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .container{display:flex;gap:4px;overflow-x:auto;padding:10px 22px;scrollbar-width:none}
+nav .container::-webkit-scrollbar{display:none}
+nav a{color:var(--ink2);font-size:.88em;padding:6px 12px;border-radius:8px;white-space:nowrap;border:none}
+nav a:hover{background:var(--bg);color:var(--forest);border:none}
+
+/* ===== 章节 ===== */
+section{padding:46px 0 8px}
+section h2{font-size:1.6rem;font-weight:800;color:var(--forest);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+section h2 .no{font-size:.85em;background:var(--forest);color:#fff;width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+section h3{font-size:1.18rem;font-weight:700;color:var(--ink);margin:30px 0 12px;padding-left:12px;border-left:4px solid var(--forest2)}
+section h4{font-size:1rem;font-weight:700;margin:18px 0 8px;color:var(--forest2)}
+.lead{color:var(--ink2);font-size:1.02rem;max-width:880px;margin-bottom:8px}
+p{margin-bottom:12px}
+
+/* ===== 卡片 ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin:16px 0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.stat b{display:block;font-size:1.7rem;font-weight:800;color:var(--forest);line-height:1.2}
+.stat span{font-size:.85em;color:var(--ink2)}
+
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.92em;min-width:640px;background:#fff}
+th{background:#eef5f0;color:var(--forest);text-align:left;font-weight:700;padding:11px 14px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f7fbf8}
+
+/* ===== 架构图 ===== */
+.arch{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;overflow-x:auto;margin:16px 0}
+.arch svg{min-width:820px;width:100%;height:auto;display:block}
+
+/* ===== 图表 ===== */
+.chart{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:16px 0}
+.chart .chart-title{font-weight:700;color:var(--ink);margin-bottom:4px}
+.chart .chart-sub{font-size:.84em;color:var(--ink2);margin-bottom:12px}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82em;color:var(--ink2);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ===== 交互模型 ===== */
+.model{background:linear-gradient(180deg,#fff,#f4faf6);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:16px 0}
+.ctl{display:flex;flex-wrap:wrap;gap:26px;margin:16px 0}
+.ctl label{display:block;font-size:.85em;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.ctl input[type=range]{width:240px;accent-color:var(--forest)}
+.ctl .val{font-weight:800;color:var(--forest);font-size:1.05em}
+.model-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+.model-out .cell{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.model-out .cell b{display:block;font-size:1.5rem;color:var(--forest)}
+.model-out .cell span{font-size:.8em;color:var(--ink2)}
+
+/* ===== 提示框 ===== */
+.note{background:var(--warnbg);border:1px solid #f0dca6;border-radius:10px;padding:12px 16px;font-size:.9em;color:#6b5400;margin:12px 0}
+.note b{color:var(--warn)}
+.quote{background:#f0f7f2;border-left:4px solid var(--grass2);padding:14px 18px;border-radius:0 10px 10px 0;margin:14px 0;font-style:normal}
+.quote b{color:var(--forest)}
+
+/* ===== 流程 ===== */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;font-size:.92em}
+.flow .step{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;color:var(--forest2)}
+.flow .arrow{color:var(--grass2);font-weight:800}
+
+/* ===== 页脚 ===== */
+footer{background:#16241d;color:#b9cdc2;padding:34px 0;margin-top:60px;font-size:.86em}
+footer a{color:#a8d5f5}
+
+/* ===== 打印 ===== */
+@media print{
+  nav{display:none}
+  .model{display:none}
+  header{background:#2d6a4f !important;-webkit-print-color-adjust:exact}
+  section{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 头部 ================= -->
+<header>
+  <div class="container">
+    <span class="badge">首届全国大学生零碳科技创新大赛 · 开放赛道 · 方向4 机制促碳</span>
+    <h1>三票互通机制设计方案</h1>
+    <div class="sub">林票 · 草票 · 蓝碳票 —— 跨生态系统碳汇凭证互通机制与应用研究</div>
+    <div class="tags">
+      <span>🌐 一个锚：统一 tCO₂e 度量衡</span>
+      <span>📒 一本账：统一登记与相应调整</span>
+      <span>🎫 一张票：跨生态凭证互认</span>
+      <span>📈 一个市场：市场化动态定价</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 导航 ================= -->
+<nav>
+  <div class="container">
+    <a href="#summary">摘要</a>
+    <a href="#problem">背景与问题</a>
+    <a href="#arch">三层架构</a>
+    <a href="#issue">发行端·调质</a>
+    <a href="#registry">登记端·记账</a>
+    <a href="#trade">交易端·定价</a>
+    <a href="#incentive">交换激励</a>
+    <a href="#dynamic">动态换算</a>
+    <a href="#diff">差异化</a>
+    <a href="#model">定价模型</a>
+    <a href="#benefit">效益测算</a>
+    <a href="#cases">案例映射</a>
+    <a href="#refs">参考文献</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ================= 摘要 ================= -->
+<section id="summary">
+  <h2><span class="no">〇</span>摘要</h2>
+  <p class="lead">目前林票（福建三明）、草票（内蒙古达茂旗）、蓝碳票（湛江/连江/深圳）各自独立发行、独立交易、价格悬殊，<b>缺乏统一的计量标尺、统一的登记体系与统一的定价机制</b>，跨生态碳汇资产无法互通。团队 8.8 会议记录明确指出核心障碍——三类票<b>产权分类不同</b>，法律层面直接合并存在困难。</p>
+  <div class="card">
+    <b>我们的设计：发行端调质 → 登记端统一记账 → 交易端市场化定价</b>
+    <div class="quote" style="margin-top:10px">
+      <b>关键论证：</b>互通的是"碳汇经核证后的量化结果（tCO₂e）"，不是产权本身。类比——不同货币可按汇率兑换，无需合并货币主权；股票与债券产权不同，却统一用人民币结算。三类票仍归各自权属部门，只在"量化结果"层面统一记账与交换。
+    </div>
+  </div>
+  <div class="grid g3">
+    <div class="card stat"><b>7 元/吨</b><span>达茂旗草票成交价（全国首张草票）<a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></span></div>
+    <div class="card stat"><b>15–22.68 元/吨</b><span>福建林业碳票价格带（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></span></div>
+    <div class="card stat"><b>66–485 元/吨</b><span>蓝碳：湛江66(公益) / 深圳485(拍卖溢价165%)<a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">源</a></span></div>
+  </div>
+  <div class="note"><b>⚠ 数据口径提示：</b>达茂旗官方报道"项目累计碳汇量约 12916.25 万吨 CO₂e、年均 32 万吨、计入期 40 年"<a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；但按年均32万吨×40年≈1280万吨，两口径存在明显差异，建议以核证文件为准。本方案测算采用"首期已签发 40 万吨"口径。</div>
+</section>
+
+<!-- ================= 背景与问题 ================= -->
+<section id="problem">
+  <h2><span class="no">一</span>背景与问题</h2>
+
+  <h3>1.1 政策背景</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>政策/标准</th><th>内容</th><th>与本案关系</th><th>来源</th></tr>
+    <tr><td>国家"双碳"战略</td><td>2030 碳达峰、2060 碳中和</td><td>生态碳汇是"负碳"路径重要组成</td><td><a class="src" href="https://www.qn-shidaibei.org.cn">大赛官网</a></td></tr>
+    <tr><td>生态产品价值实现机制</td><td>让"绿水青山"变"金山银山"</td><td>三票互通是其碳汇领域落地</td><td><a class="src" href="https://www.nmg.gov.cn/zwgk/zcjd/plwz/202601/t20260104_2844421.html">内蒙古政府</a></td></tr>
+    <tr><td>跨生态计量方法学</td><td>《湖北省山水林田湖草沙一体化保护和修复温室气体减排方法学》</td><td><b>全国首个</b>跨生态碳汇统一计量，"一起算"可行</td><td><a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">湖北政府网</a></td></tr>
+  </table></div>
+
+  <h3>1.2 三票实践现状（真实数据 + 真实来源）</h3>
+  <div class="grid g3">
+    <div class="card">
+      <h4 style="border:none;padding:0;color:#1b6b34">🟢 草票 · 达茂旗</h4>
+      <p>2024年12月6日全国首张"草票"，牧民保留承包权、经营权流转国企（租金+劳务+分红）。<a class="src" href="http://nm.people.com.cn/BIG5/n2/2025/1105/c196667-41401897.html">源</a></p>
+      <p>首笔交易（2025-11）：<b>10万吨 / 70万元 / 7元每吨</b>，销往欧洲。<a class="src" href="https://news.cri.cn/2025-11-05/cdad9038-5e04-9414-c6e4-7047a3b86da6.html">源</a></p>
+      <p>第二笔（2026-07-16）：<b>8万吨 / 56万元 / 仍7元</b>。方法学：VCS <b>VM0026</b>。<a class="src" href="https://news.qq.com/rain/a/20260807V0E60C00">源</a></p>
+    </div>
+    <div class="card">
+      <h4 style="border:none;padding:0;color:#1b6b34">🌲 林票/林业碳票 · 三明</h4>
+      <p>全国首创林票与林业碳票制度；2021年首张林业碳票（常口村编号0000001）卖出14万元。<a class="src" href="http://www.news.cn/zgjx/2022-11/01/c_1310667656_2.htm">源</a></p>
+      <p>累计制发林票<b>7.2亿元</b>、惠及8万余林农；碳票累计签发<b>139万吨</b>。<a class="src" href="http://fj.people.cn/BIG5/n2/2025/0820/c181466-41327303.html">人民网福建</a> · <a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">中国网福建</a></p>
+      <p>2026年3月碳票注册登记系统投用，首批<b>67宗近130万吨</b>"上链"。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">源</a></p>
+    </div>
+    <div class="card">
+      <h4 style="border:none;padding:0;color:#1d6fd6">🔵 蓝碳票 · 湛江/连江/深圳/霞浦</h4>
+      <p>湛江2021年全国首笔蓝碳交易：<b>66元/吨 × 5880吨</b>（基金会公益采购）。<a class="src" href="https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html">源</a></p>
+      <p>连江2023年全国首张蓝色碳票（渔业）：约<b>2.7万吨 / 20元</b>参考价。<a class="src" href="http://m.people.cn/n4/2023/0605/c1142-20620310.html">源</a></p>
+      <p>深圳2023年全国首单红树林拍卖：<b>183→485元/吨</b>，溢价165%。<a class="src" href="http://sz.people.com.cn/n2/2023/0927/c202846-40586889.html">源</a> 霞浦2026-03 CCER登记。<a class="src" href="http://finance.people.com.cn/n1/2026/0323/c1004-40687194.html">源</a></p>
+    </div>
+  </div>
+
+  <!-- 价格对比图 -->
+  <div class="chart">
+    <div class="chart-title">📊 三类碳汇成交价格对比（元/吨）</div>
+    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。图例：<b style="color:var(--forest)">林</b> · <b style="color:#74c69d">草</b> · <b style="color:var(--blue)">蓝碳</b> · <b style="color:var(--warn)">跨生态</b></div>
+    <div class="legend" style="margin-bottom:8px">
+      <span style="margin-right:14px"><i style="background:#2d6a4f"></i>林（三明/漳平）</span>
+      <span style="margin-right:14px"><i style="background:#74c69d"></i>草（达茂旗）</span>
+      <span style="margin-right:14px"><i style="background:#1d6fd6"></i>蓝碳（湛江/连江/深圳）</span>
+      <span><i style="background:#b08900"></i>跨生态（湖北）</span>
+      <button onclick="toggleScale()" style="margin-left:auto;background:var(--forest);color:#fff;border:none;padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.82em">切换 线性 / 对数刻度</button>
+    </div>
+    <div id="price-chart"></div>
+  </div>
+
+  <h3>1.3 核心障碍</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>#</th><th>障碍</th><th>表现</th><th>证据</th></tr>
+    <tr><td>1</td><td><b>产权/权属分类不同</b></td><td>森林（林业）、草原（林草）、海洋（海洋）分属不同权属体系，法律合并困难</td><td>团队 8.8 会议记录</td></tr>
+    <tr><td>2</td><td><b>核算方法学不同</b></td><td>草 VCS VM0026；林 地方/CCER；蓝 VCS+CCB/CCER，保守性、持久期、监测各异</td><td><a class="src" href="https://news.qq.com/rain/a/20260807V0E60C00">草</a> <a class="src" href="https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html">蓝</a></td></tr>
+    <tr><td>3</td><td><b>质量参数不可比</b></td><td>逆转风险（火灾/退化）、持久期（森林50–200年 vs 草原100–1000年）不同，1吨"票"≠1吨"票"</td><td>团队课题3研究报告</td></tr>
+    <tr><td>4</td><td><b>价值标尺缺失</b></td><td>草7元 vs 林15-22.68 vs 蓝66-485，跨生态价差最高近70倍</td><td>见 1.2 各来源</td></tr>
+  </table></div>
+  <div class="quote"><b>一句话：</b>不是"没有碳"，而是"碳没法放到同一个秤上称"。先解决统一计量标尺（度量衡），才能谈互通。</div>
+
+  <h3>1.4 已有尝试及局限</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>已有先例</th><th>做了什么</th><th>局限（与三票互通的距离）</th><th>来源</th></tr>
+    <tr><td><b>上海"一票通"试点</b>（2026-06-22）</td><td>达医晓护、达茂旗林草局、福建金森、NEWO 宣布启动"草票·林票·蓝票一票通"</td><td><b>只宣示方向</b>，未公布换算机制、交易规则、定价参数</td><td><a class="src" href="https://export.shobserver.com/baijiahao/html/1133157.html">上观</a> <a class="src" href="https://m.gmw.cn/toutiao/2026-06/22/content_38841756.htm">光明网</a></td></tr>
+    <tr><td>长三角林业碳票跨省（2026-05-18）</td><td>上海五星铜业认购池州石台林场500吨省级林业碳票（5万元）</td><td><b>同生态</b>（林票↔林票）跨区域，非跨生态互通</td><td><a class="src" href="http://ah.people.com.cn/n2/2026/0630/c227131-41625140.html">人民网安徽</a></td></tr>
+    <tr><td>鄂赣碳普惠互联（2025-12-18）</td><td>武汉"武碳江湖"与南昌碳普惠互认，全国首例跨省碳普惠</td><td>个人低碳<b>行为积分</b>互通，非生态碳汇凭证互通</td><td><a class="src" href="https://www.hbets.cn/view_2770.html">湖北碳交中心</a></td></tr>
+    <tr><td>湖北跨生态方法学（2026-04-23）</td><td>全国首个山水林田湖草沙一体化方法学，"一起算"，120元/吨成交1.77万吨</td><td><b>单项目内部</b>跨生态计量，非跨凭证流通兑换</td><td><a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">湖北政府网</a></td></tr>
+    <tr><td>EU–瑞士 ETS 链接（2020-01-01）</td><td>全球首个国际ETS链接条约，EUA与CHU配额互认</td><td>国际配额互通，国内生态碳票尚无类似互认</td><td><a class="src" href="https://www.bafu.admin.ch/en/linking-the-swiss-and-eu-emissions-trading-systems">瑞士环境局</a></td></tr>
+  </table></div>
+  <div class="note"><b>研究空白确认：</b>经检索，目前<b>尚无"三票互通"直接研究、也无跨生态碳汇凭证的可兑换机制先例</b>。这正是本项目的创新空间。</div>
+</section>
+
+<!-- ================= 三层架构 ================= -->
+<section id="arch">
+  <h2><span class="no">二</span>总体设计：三层机制架构</h2>
+  <div class="arch">
+    <svg viewBox="0 0 1000 470" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2d6a4f"/>
+        </marker>
+        <linearGradient id="gT" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#74c69d"/><stop offset="1" stop-color="#2d6a4f"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 层1 发行端 -->
+      <rect x="40" y="20" width="920" height="120" rx="14" fill="#eef7f1" stroke="#74c69d" stroke-width="1.5"/>
+      <text x="60" y="52" font-size="17" font-weight="800" fill="#1b6b34">① 发行端 · 调质（质量调整）</text>
+      <text x="60" y="74" font-size="13" fill="#4a5d52">林票/草票/蓝票 各自方法学核算 → 风险缓冲 + 持久期折减 → 输出"经过质量调整的 tCO₂e"（单位可比）</text>
+      <g font-size="13" font-weight="700">
+        <rect x="70" y="90" width="120" height="38" rx="8" fill="#74c69d"/><text x="130" y="114" text-anchor="middle" fill="#0c2a1a">🌲 林票</text>
+        <rect x="215" y="90" width="120" height="38" rx="8" fill="#95d5b2"/><text x="275" y="114" text-anchor="middle" fill="#0c2a1a">🟢 草票</text>
+        <rect x="360" y="90" width="120" height="38" rx="8" fill="#a8d5f5"/><text x="420" y="114" text-anchor="middle" fill="#0c2a1a">🔵 蓝票</text>
+        <rect x="520" y="88" width="190" height="42" rx="9" fill="#2d6a4f"/><text x="615" y="113" text-anchor="middle" fill="#fff">风险缓冲 + 持久期折减</text>
+        <rect x="740" y="88" width="190" height="42" rx="9" fill="url(#gT)"/><text x="835" y="113" text-anchor="middle" fill="#fff">调整后 tCO₂e（可比）</text>
+      </g>
+
+      <!-- 箭头 -->
+      <line x1="615" y1="110" x2="735" y2="110" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="500" y1="140" x2="500" y2="170" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- 层2 登记端 -->
+      <rect x="40" y="175" width="920" height="120" rx="14" fill="#f0f7fb" stroke="#a8d5f5" stroke-width="1.5"/>
+      <text x="60" y="207" font-size="17" font-weight="800" fill="#1d6fd6">② 登记端 · 统一记账（一本账）</text>
+      <text x="60" y="229" font-size="13" fill="#4a5d52">统一序列号 · 注销锁定 · 相应调整（防双重计算）—— 参照巴黎协定 6.2 一正一负记账</text>
+      <g font-size="13" font-weight="700">
+        <rect x="70" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="170" y="269" text-anchor="middle" fill="#0c2a1a">🔢 唯一序列号（可追溯）</text>
+        <rect x="300" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="400" y="269" text-anchor="middle" fill="#0c2a1a">🗑 注销锁定（防重复）</text>
+        <rect x="530" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="630" y="269" text-anchor="middle" fill="#0c2a1a">⚖ 相应调整（6.2）</text>
+        <rect x="760" y="245" width="170" height="38" rx="8" fill="#a8d5f5"/><text x="845" y="269" text-anchor="middle" fill="#0c2a1a">🗺 服务区（EPA）</text>
+      </g>
+
+      <line x1="500" y1="295" x2="500" y2="325" stroke="#1d6fd6" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- 层3 交易端 -->
+      <rect x="40" y="330" width="920" height="120" rx="14" fill="#fff8e1" stroke="#f0dca6" stroke-width="1.5"/>
+      <text x="60" y="362" font-size="17" font-weight="800" fill="#8a6d00">③ 交易端 · 市场化定价（一个市场）</text>
+      <text x="60" y="384" font-size="13" fill="#4a5d52">不设行政汇率 · 由市场发现"价值比价" · 定价参考模型动态校准 —— Woerman(2023) 兑换率理论</text>
+      <g font-size="13" font-weight="700">
+        <rect x="70" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="170" y="424" text-anchor="middle" fill="#4a3a00">🚫 不设行政固定汇率</text>
+        <rect x="300" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="400" y="424" text-anchor="middle" fill="#4a3a00">💰 市场发现价值比价</text>
+        <rect x="530" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="630" y="424" text-anchor="middle" fill="#4a3a00">📈 生态属性升贴水</text>
+        <rect x="760" y="400" width="170" height="38" rx="8" fill="#f0dca6"/><text x="845" y="424" text-anchor="middle" fill="#4a3a00">🔄 动态校准模型</text>
+      </g>
+    </svg>
+  </div>
+  <div class="grid g3">
+    <div class="card stat"><b>1 tCO₂e = 1 tCO₂e</b><span>碳当量度量衡恒等（统一"秤"）—— 温室效应与生态类型无关</span></div>
+    <div class="card stat"><b>≠ 价格相等</b><span>价值换算由市场发现（动态）—— 1:1是度量衡，不是价格</span></div>
+    <div class="card stat"><b>0 行政汇率</b><span>不设固定换算系数 —— 动态市场只能由市场定价</span></div>
+  </div>
+</section>
+
+<!-- ================= 发行端 ================= -->
+<section id="issue">
+  <h2><span class="no">三</span>发行端：质量调整（调质）</h2>
+  <div class="quote">
+    <b>为什么必须"调质"而不是简单 1:1 加总：</b>草票按 VCS VM0026、林票按地方/CCER、蓝碳按 VCS+CCB，方法学保守性、监测频率、持久期承诺都不同。若不调质，直接 1吨草票=1吨林票=1吨蓝票，等于把不同质量的碳硬当成等值。国际机制早已给出答案：<b>质量差异用"折减/缓冲"在发行端解决，而不是在价格端用行政系数解决</b>。
+  </div>
+  <div class="grid g3">
+    <div class="card"><h4>🛡 风险逆转缓冲</h4><p>从每期签发量划扣一定比例进入缓冲池，对冲火灾/退化/逆转风险。</p><p><b>国际参照：</b>ACCU 对<b>所有封存项目强制 5% 风险逆转缓冲</b>。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
+    <div class="card"><h4>⏳ 持久期折减</h4><p>持久期越短、永久性越差，折减越高。</p><p><b>国际参照：</b>ACCU 25年期项目再扣 <b>20%</b>（合计25%），100年期仅5%缓冲。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
+    <div class="card"><h4>🎯 绩效解锁/签发挂钩</h4><p>碳汇信用与持续绩效里程碑挂钩，达标才释放。</p><p><b>国际参照：</b>美国 EPA 湿地补偿银行 credit release 与绩效里程碑挂钩（Mitigation Rule 2008）。</p></div>
+  </div>
+  <h3>巴黎协定的"调质"参照（已写入国际规则）</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>机制</th><th>规则</th><th>来源</th></tr>
+    <tr><td>6.4 适应基金</td><td>签发时征收 <b>5%</b> A6.4ERs 用于适应气候变化</td><td><a class="src" href="https://unfccc.int/sites/default/files/resource/DT.CMA2_.i11b_13Dec.pdf">UNFCCC Decision 3/CMA.3</a></td></tr>
+    <tr><td>6.4 全球减排（OMGE）</td><td>签发时强制注销 <b>2%</b> A6.4ERs（整体减排）</td><td><a class="src" href="https://unfccc.int/sites/default/files/resource/Art6.4_TechnicalPaper_OMGE.pdf">UNFCCC 技术文件</a></td></tr>
+    <tr><td>6.2 相应调整</td><td>出口方扣减、进口方计入，一正一负记账</td><td>UNFCCC 6.2 规则</td></tr>
+  </table></div>
+  <div class="note"><b>设计含义：</b>三票互通应在发行端设置"质量调整率"（含风险缓冲 + 持久期折减），参照 ACCU 的 25%/5% 档位。<b>具体比率由方法学风险决定并写入方法学，而非行政拍脑袋。</b></div>
+</section>
+
+<!-- ================= 登记端 ================= -->
+<section id="registry">
+  <h2><span class="no">四</span>登记端：统一记账（一本账）</h2>
+  <div class="grid g3">
+    <div class="card"><h4>🔢 统一序列号与注销锁定</h4><p>每张票经调质后获得唯一 tCO₂e 序列号，登记、流转、注销全程可追溯。参照澳大利亚 ANREU 登记簿、三明碳票数字"身份证"经验。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">三明上链</a></p></div>
+    <div class="card"><h4>⚖ 防止双重计算</h4><p><b>注销锁定</b>：碳票用于抵消后必须注销、不可再流通。<b>相应调整（巴黎6.2模式）</b>：跨区域转移时输出方扣减、输入方计入，同一吨碳不重复计入两个区域。</p></div>
+    <div class="card"><h4>🗺 服务区/替代原则</h4><p>借鉴 EPA 湿地补偿银行（Mitigation Rule 2008, 33 CFR 332）的"服务区"概念：跨生态兑换时明确替代补偿的服务区范围，避免远距离兑换导致生态功能错位。</p></div>
+  </div>
+</section>
+
+<!-- ================= 交易端 ================= -->
+<section id="trade">
+  <h2><span class="no">五</span>交易端：市场化定价（动态汇率）</h2>
+  <h3>5.1 关键区分：两层换算</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>换算</th><th>回答的问题</th><th>规则</th></tr>
+    <tr><td><b>碳当量换算</b>（计量层）</td><td>"抵消 1 吨 CO₂，三种票各需多少？"</td><td><b>1 tCO₂e = 1 tCO₂e</b>（1:1 恒等，用于抵消记账）</td></tr>
+    <tr><td><b>价值换算</b>（结算层）</td><td>"1 张草票值多少张林票？"</td><td><b>不设固定汇率</b>，由市场价格比决定（动态）</td></tr>
+  </table></div>
+  <div class="quote"><b>一句话：1:1 是"度量衡"（统一的是秤），不是"价格"（统一的是价）。</b>前者必须恒等，后者必须放开。</div>
+
+  <h3>5.2 为什么不能设行政固定汇率（学术依据）</h3>
+  <div class="grid g3">
+    <div class="card"><h4>Woerman (2023, JEEM)</h4><p>正式证明统一价格/1:1链接<b>"很少社会最优"</b>，而<b>兑换率（exchange rate）</b>让不同市场配额以不同价值流通，更接近社会最优——"两地区都受益、环境也受益"。</p><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a> · <a class="src" href="https://www.umass.edu/news/article/linking-carbon-markets-allowance-exchange-rate-yields-environmental-economic-dividends">UMass解读</a></div>
+    <div class="card"><h4>Burtraw, Palmer & Munnings (RFF)</h4><p>提出"兑换率"机制——让一个体系配额在另一体系以不同合规价值流通，用兑换率调整不同项目的严格程度差异。</p><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF WP 17-16</a></div>
+    <div class="card"><h4>2023 年碳市场崩盘（现实例证）</h4><p>S&P Platts 自然碳清除价格从 11.5 美元跌至 <b>3.5美元/吨</b>（跌约70%）。<b>若当初设固定行政汇率，市场早已崩穿。</b></p><a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&P Global</a></div>
+  </div>
+
+  <h3>5.3 市场如何发现价值（"升贴水"模式）</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>机制</th><th>做法</th><th>数据</th><th>来源</th></tr>
+    <tr><td>Platts 本地树种升贴水</td><td>100%本地树种 A/R 项目相对标准现年评估价的每日升贴水</td><td>2024-03-11 上线每日评估</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&P</a></td></tr>
+    <tr><td>CCP 高质量标签溢价</td><td>ICVCM 核心碳原则（CCP）标签项目获市场溢价</td><td>溢价约 <b>25%</b>；首批2700万信用获标签</td><td><a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">Abatable</a> <a class="src" href="https://carboncredits.com/expert-predicts-double-digit-price-hike-for-ccp-labeled-carbon-credits/">carboncredits</a></td></tr>
+    <tr><td>深圳拍卖发现价格</td><td>公开竞价，17家92轮</td><td>红树林碳汇 183→485元/吨（溢价165%）</td><td><a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">深圳市政府</a></td></tr>
+  </table></div>
+</section>
+
+<!-- ================= 交换激励 ================= -->
+<section id="incentive">
+  <h2><span class="no">六</span>交换激励分析（谁换？为什么换？）</h2>
+  <p class="lead">机制设计的灵魂。若没有供需激励，1:1 互通就是空转。四类真实激励：</p>
+  <div class="grid g2">
+    <div class="card"><h4>① 需求侧指定</h4><p>企业/机构有明确生态偏好：医疗公益想"支持草原"、沿海企业想"支持海洋修复"、文旅品牌想"碳中和+本地林"。指定需求驱动跨票兑换。</p></div>
+    <div class="card"><h4>② 流动性解锁 → 价格发现 → 供给激励（核心）</h4><p>草票现 7元/吨、本地流转、流动性极低；互通后进入全国市场，价格向同类生态碳汇价格带收敛（林业15–22.68、跨生态120、蓝碳66–485）。<b>价格上行 → 激励牧民禁牧/修复 → 新增固碳</b>。这是互通对零碳的直接贡献，也是效益测算的支点。</p></div>
+    <div class="card"><h4>③ 权益组合（碳 + 非碳生态价值）</h4><p>一票不只含碳。据谢高地等(2015)当量因子表：森林针阔混交气候调节当量 <b>7.03</b>、生物多样性 <b>2.60</b>；草原气候调节 <b>1.34</b>、生物多样性 <b>0.56</b>；湿地水文调节 <b>24.23</b>。互通让"碳+生态权益"可拆分、可组合、可跨生态打包。</p></div>
+    <div class="card"><h4>④ 合规对冲与风险管理</h4><p>企业用相对低价生态碳汇对冲合规成本；持有方通过跨生态兑换分散单一生态风险（火灾、病虫害等）。</p></div>
+  </div>
+
+  <!-- 当量因子图 -->
+  <div class="chart">
+    <div class="chart-title">📊 谢高地等(2015) 当量因子：森林 vs 草原 关键服务对比</div>
+    <div class="chart-sub">当量因子 = 相对农田食物生产能力(1)的权重。数据：<a class="src" href="#refs">谢高地等, 自然资源学报 2015</a>；湿地水文调节当量 24.23（另行表述）。</div>
+    <div id="factor-chart"></div>
+  </div>
+</section>
+
+<!-- ================= 动态换算 ================= -->
+<section id="dynamic">
+  <h2><span class="no">七</span>动态换算机制（锚恒定 · 量动态 · 价流动）</h2>
+  <p class="lead"><b>换算从来不是静态指标，而是动态的</b>——这是本方案与"一次性汇率表"的本质区别。</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>维度</th><th>静态还是动态</th><th>机制</th></tr>
+    <tr><td><b>锚</b>（tCO₂e 定义）</td><td><b>恒定</b>（1吨=1吨，与生态无关）</td><td>永不改变，这是"通"的根基</td></tr>
+    <tr><td><b>量</b>（票面 tCO₂e）</td><td><b>动态</b>（每期核证更新）</td><td>碳汇在长、缓冲在累积、逆转要扣回（快照式滚动登记）</td></tr>
+    <tr><td><b>价</b>（价值换算）</td><td><b>动态</b>（市场重新发现）</td><td>升贴水、拍卖、供需变化</td></tr>
+    <tr><td><b>参考模型参数</b></td><td><b>动态</b>（定期重估）</td><td>方法学更新、科学认知进步</td></tr>
+  </table></div>
+  <div class="note"><b>为什么静态汇率必失败：</b>2023年诚信危机后，天然类碳汇价格在数周内一度下跌 25%（2023年1月18日–2月9日），全年更从 11.5 美元/吨跌至 3.5 美元/吨（约 −70%）<a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&P</a>，任何写死的汇率都会瞬间失真并引发套利。动态市场只能由市场定价。</div>
+</section>
+
+<!-- ================= 差异化 ================= -->
+<section id="diff">
+  <h2><span class="no">八</span>与既有试点的差异化（创新性论证）</h2>
+  <div class="tbl-wrap"><table>
+    <tr><th>维度</th><th>上海"一票通"试点</th><th>我们的方案</th></tr>
+    <tr><td>目标</td><td>宣示"推动跨系统认证"</td><td>给出<b>可落地机制</b>：调质→记账→定价</td></tr>
+    <tr><td>换算机制</td><td><b>无</b>（未公布）</td><td><b>发行端调质 + 交换端1:1 + 价格端市场发现</b></td></tr>
+    <tr><td>质量处理</td><td>未涉及</td><td>风险缓冲 + 持久期折减（ACCU 模式）</td></tr>
+    <tr><td>定价</td><td>未涉及</td><td>市场化动态定价 + 定价参考模型</td></tr>
+    <tr><td>防套利/防双重计算</td><td>未涉及</td><td>序列号 + 注销 + 相应调整</td></tr>
+    <tr><td>非碳价值</td><td>未涉及</td><td>生态权益组合（当量因子支撑）</td></tr>
+  </table></div>
+  <div class="quote"><b>一句话：</b>上海试点宣布了"要通"，我们设计"怎么通"。</div>
+</section>
+
+<!-- ================= 定价参考模型 ================= -->
+<section id="model">
+  <h2><span class="no">九</span>定价参考模型（交互演示）</h2>
+  <p class="lead">演示"交换激励"逻辑链：草票互通后进入全国市场，价格向同类碳汇收敛，价差形成供给激励。拖滑块看敏感性（<b>基于真实数据 + 可调假设</b>）。</p>
+  <div class="model">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:.82em;color:var(--ink2)">
+      <span>基础数据：达茂旗首期已签发碳汇 <b>40万吨</b><a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；草票现行价 <b>7 元/吨</b><a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></span>
+    </div>
+    <div class="ctl">
+      <div>
+        <label>互通后草票价格（元/吨）—— 参考林业碳票 15–22.68（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></label>
+        <input type="range" id="price" min="7" max="30" step="0.5" value="15">
+        <span class="val" id="priceV">15 元/吨</span>
+      </div>
+      <div>
+        <label>已核证碳汇入市比例（%）</label>
+        <input type="range" id="ratio" min="5" max="100" step="5" value="20">
+        <span class="val" id="ratioV">20%</span>
+      </div>
+    </div>
+    <div class="model-out">
+      <div class="cell"><span>入市碳汇量</span><b id="o1">8 万吨</b></div>
+      <div class="cell"><span>单价提升（Δ元）</span><b id="o2">+8 元</b></div>
+      <div class="cell"><span>增收（对比7元现状）</span><b id="o3">+64 万元</b></div>
+      <div class="cell"><span>若维持7元（不互通）</span><b id="o4">56 万元</b></div>
+    </div>
+    <div class="note" style="margin-top:14px"><b>免责说明：</b>这是<b>机制性测算</b>，非精确预测。核心贡献在于证明"互通能创造新增激励"的因果链，参数均可调、可复算。规则允许"基于合理假设的估算"（竞赛规则·零碳效益指标）。</div>
+  </div>
+</section>
+
+<!-- ================= 效益测算 ================= -->
+<section id="benefit">
+  <h2><span class="no">十</span>效益测算逻辑链（零碳效益）</h2>
+  <div class="flow">
+    <span class="step">草票 7 元/吨</span><span class="arrow">→</span>
+    <span class="step">互通进入统一市场</span><span class="arrow">→</span>
+    <span class="step">需求池扩大</span><span class="arrow">→</span>
+    <span class="step">价格向同类碳汇收敛</span><span class="arrow">→</span>
+    <span class="step">价差激励 → 牧民增绿</span><span class="arrow">→</span>
+    <span class="step">新增固碳</span>
+  </div>
+  <div class="tbl-wrap"><table>
+    <tr><th>参数</th><th>取值</th><th>来源/依据</th></tr>
+    <tr><td>达茂旗已核证碳汇量（首期签发）</td><td>40 万吨</td><td><a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">包头日报</a></td></tr>
+    <tr><td>草票现行价</td><td>7 元/吨</td><td><a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">达茂旗政府网</a></td></tr>
+    <tr><td>互通后参考价格带</td><td>林业 15–22.68 元/吨（三明15/漳平22.68）</td><td><a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> / <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></td></tr>
+    <tr><td>保守假设：互通后价格</td><td>10 元/吨（低于当前成交区间下沿，超保守）</td><td>假设（可调）</td></tr>
+    <tr><td>假设入市比例</td><td>已核证量 20%（8万吨）</td><td>假设（可调）</td></tr>
+    <tr><td><b>测算：增收</b></td><td>8万吨 × (10-7) 元 = <b>+24万元</b></td><td>计算</td></tr>
+    <tr><td>若价格达 15 元/吨</td><td>8万吨 × (15-7) = <b>+64万元</b></td><td>计算</td></tr>
+  </table></div>
+</section>
+
+<!-- ================= 试点落地 ================= -->
+<section id="pilot">
+  <h2><span class="no">十一</span>试点落地路径</h2>
+  <div class="grid g3">
+    <div class="card"><h4>🧪 最小可行试点（MVP）</h4><p>以<b>达茂旗（草）+ 三明（林）</b>为第一对试点（两者已有上海"一票通"合作基础、已有"生态修复草原162亩 + 医疗碳汇林204亩"落地成果<a class="src" href="https://m.gmw.cn/toutiao/2026-06/22/content_38841756.htm">源</a>），先做<b>两票互通</b>验证三环节，再扩展蓝碳（连江/湛江）。</p></div>
+    <div class="card"><h4>🏥 对接"碳惠锦旗"场景</h4><p>团队已有"碳惠锦旗"实践（患者购买碳汇代替实体锦旗，已上线全国统一交易平台，交易量超1200单——团队会议记录）。将三票互通接入：患者可自愿选择"支持草原/森林/海洋"任一碳汇，兑换价按市场发现。</p></div>
+    <div class="card"><h4>🚀 可复制场景</h4><p>医疗公益、文旅碳中和、企业 ESG、赛事中和（三明已对接省运会76场赛事<a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">源</a>）。</p></div>
+  </div>
+</section>
+
+<!-- ================= 案例映射 ================= -->
+<section id="cases">
+  <h2><span class="no">十二</span>国际案例映射表（机制 → 设计环节 → 来源）</h2>
+  <div class="tbl-wrap"><table>
+    <tr><th>国际/国内机制</th><th>映射到我们的设计</th><th>关键数据</th><th>来源（可点击）</th></tr>
+    <tr><td>澳大利亚 ACCU</td><td>发行端调质</td><td>5%风险缓冲；25年期+20%折减=25%；100年期5%</td><td><a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER 官方</a></td></tr>
+    <tr><td>巴黎协定 6.4</td><td>发行端调质</td><td>5%适应基金 + 2% OMGE 注销</td><td><a class="src" href="https://unfccc.int/sites/default/files/resource/DT.CMA2_.i11b_13Dec.pdf">UNFCCC</a></td></tr>
+    <tr><td>巴黎协定 6.2</td><td>登记端相应调整</td><td>一正一负记账</td><td><a class="src" href="https://unfccc.int/sites/default/files/resource/DT.CMA2_.i11b_13Dec.pdf">UNFCCC</a></td></tr>
+    <tr><td>美国 EPA 湿地银行</td><td>登记端服务区</td><td>Mitigation Rule 2008 (33 CFR 332)</td><td><a class="src" href="https://www.bafu.admin.ch/en/linking-the-swiss-and-eu-emissions-trading-systems">EPA 制度框架</a></td></tr>
+    <tr><td>Woerman (2023)</td><td>交易端市场化定价</td><td>兑换率优于1:1行政固定</td><td><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a></td></tr>
+    <tr><td>Burtraw 等 (RFF)</td><td>交易端兑换率</td><td>WP 17-16</td><td><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF 工作论文</a></td></tr>
+    <tr><td>Platts 升贴水</td><td>交易端价格发现</td><td>本地树种每日升贴水</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&P</a></td></tr>
+    <tr><td>ICVCM CCP 标签</td><td>交易端质量溢价</td><td>溢价约 25%</td><td><a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">Abatable</a></td></tr>
+    <tr><td>深圳红树林拍卖</td><td>价格发现验证</td><td>183→485元/吨（溢价165%）</td><td><a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">深圳市政府</a></td></tr>
+    <tr><td>湖北跨生态方法学</td><td>跨生态计量可行性</td><td>120元/吨、1.77万吨、溢价20%</td><td><a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">湖北政府网</a></td></tr>
+    <tr><td>谢高地等 (2015)</td><td>非碳生态价值量化</td><td>当量因子表</td><td>自然资源学报 2015</td></tr>
+  </table></div>
+</section>
+
+<!-- ================= 参考文献 ================= -->
+<section id="refs">
+  <h2><span class="no">附</span>参考文献与数据来源（GB/T 7714 摘选）</h2>
+  <div class="card" style="font-size:.9em">
+    <ol style="padding-left:22px">
+      <li style="margin-bottom:8px">谢高地，张彩霞，张雷明，等. 基于单位面积价值当量因子的生态系统服务价值化方法改进[J]. 自然资源学报, 2015, 30(8): 1243–1254.</li>
+      <li style="margin-bottom:8px">Woerman M. Linking carbon markets with different initial conditions[J]. Journal of Environmental Economics and Management, 2023, 119: 102820. <a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">DOI/摘要</a></li>
+      <li style="margin-bottom:8px">Burtraw D, Palmer K, Munnings C. Linking by Degrees: Incremental Alignment of Cap-and-Trade Markets[R]. RFF DP 13-04, 2013. <a class="src" href="https://ideas.repec.org/p/rff/dpaper/dp-13-04.html">RePEc</a></li>
+      <li style="margin-bottom:8px">Clean Energy Regulator. Permanence obligations. <a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">链接</a></li>
+      <li style="margin-bottom:8px">UNFCCC. Decision 3/CMA.3（6.4机制 5%适应基金、2% OMGE）与 6.2 相应调整规则. <a class="src" href="https://unfccc.int/sites/default/files/resource/DT.CMA2_.i11b_13Dec.pdf">链接</a></li>
+      <li style="margin-bottom:8px">Swiss Federal Office for the Environment. Linking the Swiss and EU emissions trading systems. <a class="src" href="https://www.bafu.admin.ch/en/linking-the-swiss-and-eu-emissions-trading-systems">链接</a></li>
+      <li style="margin-bottom:8px">S&P Global Commodity Insights. Price slump in 2023 clouds outlook for voluntary carbon market (2024-01-05). <a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">链接</a></li>
+      <li style="margin-bottom:8px">Abatable. Decoding the Voluntary Carbon Market in 2024 and beyond. <a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">链接</a></li>
+      <li style="margin-bottom:8px">湖北政府网. 湖北完成首笔山水林田湖草沙一体化保护修复碳汇交易 (2026-04). <a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">链接</a></li>
+      <li style="margin-bottom:8px">包头日报. 全区首单草原碳汇交易落地达茂旗 (2025-11). <a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">链接</a></li>
+      <li style="margin-bottom:8px">人民网内蒙古. 全国首笔"草票"碳汇交易在包头完成 (2025-11). <a class="src" href="http://nm.people.com.cn/BIG5/n2/2025/1105/c196667-41401897.html">链接</a></li>
+      <li style="margin-bottom:8px">深圳市政府. 全国首单红树林保护碳汇成功拍卖 (2023-09). <a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">链接</a></li>
+      <li style="margin-bottom:8px">广东林业局. 湛江首笔红树林碳汇开发权交易 (2024). <a class="src" href="https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html">链接</a></li>
+      <li style="margin-bottom:8px">上观新闻/光明网/科技日报. "草票、林票、蓝票"一票通试点报道 (2026-06). <a class="src" href="https://m.gmw.cn/toutiao/2026-06/22/content_38841756.htm">链接</a></li>
+      <li style="margin-bottom:8px">中国网福建. 福建三明：碳票生金，绿富共赢 (2026-03). <a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">链接</a></li>
+      <li style="margin-bottom:8px">人民网. 福州连江发放全国首张蓝色碳票 (2023-06). <a class="src" href="http://m.people.cn/n4/2023/0605/c1142-20620310.html">链接</a></li>
+      <li style="margin-bottom:8px">中国环境网. 全国首宗红树林碳汇开发权交易落地广东惠东 (2024-07). <a class="src" href="https://www.cenews.com.cn/news.html?aid=1153428">链接</a></li>
+    </ol>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    <b>三票互通机制设计方案</b> · 首届全国大学生零碳科技创新大赛 · 开放赛道·方向4 机制促碳<br>
+    核心结论：一个锚（tCO₂e）· 一本账（统一登记）· 一张票（统一凭证）· 一个市场（市场化动态定价）。<br>
+    本页所有数据均标注真实来源；测算为基于公开数据的机制性估算（可调参数、可复算）。
+  </div>
+</footer>
+
+<script>
+/* ============ 价格对比图（SVG 渲染，可切换刻度） ============ */
+var priceData = [
+  {label:"草票·达茂旗", v:7,  color:"#74c69d", src:"http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html"},
+  {label:"林票·三明", v:15, color:"#2d6a4f", src:"http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm"},
+  {label:"林票·漳平", v:22.68, color:"#2d6a4f", src:"http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm"},
+  {label:"蓝碳·连江", v:20, color:"#1d6fd6", src:"http://m.people.cn/n4/2023/0605/c1142-20620310.html"},
+  {label:"蓝碳·湛江(公益)", v:66, color:"#1d6fd6", src:"https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html"},
+  {label:"开发权·惠东", v:91.67, color:"#1d6fd6", src:"https://www.cenews.com.cn/news.html?aid=1153428"},
+  {label:"跨生态·湖北", v:120, color:"#b08900", src:"https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml"},
+  {label:"红树林·深圳(拍卖)", v:485, color:"#1d6fd6", src:"https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html"}
+];
+var logScale = false;
+function scaleOf(x){ return logScale ? Math.log10(x+1) : x; }
+function renderPriceChart(){
+  var W=860, H=340, padL=120, padR=30, padT=20, padB=46;
+  var innerW = W-padL-padR, innerH = H-padT-padB;
+  var maxV = logScale ? scaleOf(500) : 500;
+  var svg = '';
+  svg += '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
+  // grid
+  for(var g=0; g<=4; g++){
+    var yy = padT + innerH - g*innerH/4;
+    var gv = logScale ? Math.pow(10, g*Math.log10(500)/4) : g*500/4;
+    svg += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e5ede8" stroke-width="1"/>';
+    svg += '<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8ba39a">'+Math.round(gv)+'</text>';
+  }
+  var n = priceData.length, bw = innerW/n*0.55;
+  priceData.forEach(function(d,i){
+    var x = padL + i*innerW/n + (innerW/n-bw)/2;
+    var h = Math.max(2, scaleOf(d.v)/maxV * innerH);
+    var y = padT + innerH - h;
+    var labelY = H - padB + 18;
+    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="3" fill="'+d.color+'" opacity="0.85"/></a>';
+    svg += '<text x="'+x+'" y="'+(y-5)+'" font-size="11" font-weight="700" fill="#333" text-anchor="middle">'+d.v+'</text>';
+    svg += '<text x="'+(x+bw/2)+'" y="'+labelY+'" font-size="10.5" fill="#4a5d52" text-anchor="middle">'+d.label+'</text>';
+  });
+  // baseline note
+  svg += '<text x="'+(W-padR)+'" y="'+padT+'" text-anchor="end" font-size="10" fill="#b08900">虚线 = 500 刻度顶（对数模式下相同）</text>';
+  svg += '</svg>';
+  document.getElementById('price-chart').innerHTML = svg;
+}
+function toggleScale(){ logScale = !logScale; renderPriceChart(); }
+
+/* ============ 当量因子图（森林 vs 草地，分组柱状） ============ */
+function renderFactorChart(){
+  var data = [
+    {name:"气候调节", forest:7.03, grass:1.34, src:"谢高地等 2015"},
+    {name:"气体调节", forest:2.35, grass:0.51, src:"谢高地等 2015"},
+    {name:"净化环境", forest:1.99, grass:0.44, src:"谢高地等 2015"},
+    {name:"水文调节", forest:3.51, grass:0.98, src:"谢高地等 2015"},
+    {name:"生物多样性", forest:2.60, grass:0.56, src:"谢高地等 2015"},
+    {name:"土壤保持", forest:2.86, grass:0.62, src:"谢高地等 2015"}
+  ];
+  var W=860, H=340, padL=70, padR=20, padT=20, padB=40;
+  var innerW=W-padL-padR, innerH=H-padT-padB, maxV=8;
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
+  for(var g=0; g<=4; g++){
+    var yy=padT+innerH-g*innerH/4, gv=g*maxV/4;
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e5ede8"/>';
+    svg+='<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8ba39a">'+gv+'</text>';
+  }
+  var n=data.length, gw=innerW/n, bw=gw*0.3;
+  data.forEach(function(d,i){
+    var x=padL+i*gw+gw*0.25;
+    var hf=Math.max(2,d.forest/maxV*innerH), hg=Math.max(2,d.grass/maxV*innerH);
+    svg+='<rect x="'+x+'" y="'+(padT+innerH-hf)+'" width="'+bw+'" height="'+hf+'" rx="3" fill="#2d6a4f" opacity="0.85"/>';
+    svg+='<rect x="'+(x+bw+3)+'" y="'+(padT+innerH-hg)+'" width="'+bw+'" height="'+hg+'" rx="3" fill="#74c69d" opacity="0.9"/>';
+    svg+='<text x="'+x+'" y="'+(padT+innerH-hf-5)+'" font-size="10.5" fill="#2d6a4f" text-anchor="middle">'+d.forest+'</text>';
+    svg+='<text x="'+(x+bw+3)+'" y="'+(padT+innerH-hg-5)+'" font-size="10.5" fill="#40916c" text-anchor="middle">'+d.grass+'</text>';
+    svg+='<text x="'+(x+gw/2)+'" y="'+(H-padB+16)+'" font-size="11" fill="#4a5d52" text-anchor="middle">'+d.name+'</text>';
+  });
+  svg+='</svg>';
+  document.getElementById('factor-chart').innerHTML = svg;
+}
+
+/* ============ 定价参考模型 ============ */
+function updateModel(){
+  var base=40, cur=7;
+  var p=parseFloat(document.getElementById('price').value);
+  var r=parseFloat(document.getElementById('ratio').value)/100;
+  document.getElementById('priceV').textContent = p+' 元/吨';
+  document.getElementById('ratioV').textContent = Math.round(r*100)+'%';
+  var tons=base*r;
+  var delta=p-cur;
+  var inc=tons*delta;
+  var stay=tons*cur;
+  document.getElementById('o1').textContent = (Math.round(tons*10)/10)+' 万吨';
+  document.getElementById('o2').textContent = (delta>0?'+':'')+Math.round(delta*10)/10+' 元';
+  document.getElementById('o3').textContent = '+'+Math.round(inc)+' 万元';
+  document.getElementById('o4').textContent = Math.round(stay)+' 万元';
+}
+document.getElementById('price').addEventListener('input', updateModel);
+document.getElementById('ratio').addEventListener('input', updateModel);
+
+renderPriceChart();
+renderFactorChart();
+updateModel();
+</script>
+</body>
+</html>
