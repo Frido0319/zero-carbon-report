@@ -1,0 +1,16 @@
+{
+  "name": "三票互通机制设计方案",
+  "short_name": "三票互通",
+  "description": "林票·草票·蓝碳票 跨生态碳汇凭证互通机制与应用研究 —— 首届全国大学生零碳科技创新大赛",
+  "start_url": "./san-piao-interchange.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e3a2a",
+  "theme_color": "#0e3a2a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
