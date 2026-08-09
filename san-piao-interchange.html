@@ -24,10 +24,11 @@
   --grass:#7faf4b;       /* 草票黄绿 */
   --grassL:#e9f2dc;
   --ocean:#0f4c81;       /* 蓝票深蓝 */
-  --ocean2:#2e7bb8;
+  --ocean2:#1a5f9e;
+  --grassD:#4a752c;
   --oceanL:#dcebf7;
   --gold:#c8a24b;        /* 金色 — 数据/价值强调 */
-  --goldD:#8a6d1f;
+  --goldD:#6d5413;
   --goldL:#f6edd8;
   --ink:#15221a;
   --ink2:#57685e;
@@ -52,8 +53,10 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opa
 .container{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
 a{color:var(--ocean2);text-decoration:none;border-bottom:1px solid transparent}
 a:hover{border-bottom-color:var(--ocean2)}
-a.src{color:var(--ocean2);font-size:.8em;border-bottom:1px dashed #b4cfdd;white-space:nowrap;padding-bottom:1px}
+a.src{color:var(--ocean2);font-size:.8em;border-bottom:1px dashed #b4cfdd;white-space:nowrap;display:inline-block;padding:6px 4px;margin:-6px -4px;line-height:1.1}
 a.src:hover{border-bottom-style:solid}
+td a.src{padding:8px 6px;margin:-8px -6px}
+td a.src + a.src{margin-left:6px}
 sup{font-size:.72em;margin-left:1px}
 
 /* ============================================================
@@ -114,7 +117,8 @@ p b,td b,.card b{font-weight:800}
 .eco.forest::before{background:var(--forest2)}
 .eco.grass::before{background:var(--grass)}
 .eco.ocean::before{background:var(--ocean2)}
-.eco h4{margin-top:0;color:var(--ink)}
+.card h3{padding-left:0;border-left:none;margin:0 0 8px;font-size:1rem;font-weight:800;color:var(--forest2)}
+.eco h3{margin-top:0;color:var(--ink)}
 .grid{display:grid;gap:18px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(265px,1fr))}
@@ -274,7 +278,7 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   </div>
 </nav>
 
-<div class="container">
+<main class="container">
 
 <!-- ================= 摘要 ================= -->
 <section id="summary">
@@ -309,19 +313,19 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   <h3>1.2 三票实践现状（真实数据 + 真实来源）</h3>
   <div class="grid g3">
     <div class="card eco grass">
-      <h4>🟢 草票 · 达茂旗</h4>
+      <h3>🟢 草票 · 达茂旗</h3>
       <p>2024年12月6日全国首张"草票"，牧民保留承包权、经营权流转国企（租金+劳务+分红）。<a class="src" href="http://nm.people.com.cn/BIG5/n2/2025/1105/c196667-41401897.html">源</a></p>
       <p>首笔交易（2025-11）：<b>10万吨 / 70万元 / 7元每吨</b>，销往欧洲。<a class="src" href="https://news.cri.cn/2025-11-05/cdad9038-5e04-9414-c6e4-7047a3b86da6.html">源</a></p>
       <p>第二笔（2026-07-16）：<b>8万吨 / 56万元 / 仍7元</b>。方法学：VCS <b>VM0026</b>。<a class="src" href="https://news.qq.com/rain/a/20260807V0E60C00">源</a></p>
     </div>
     <div class="card eco forest">
-      <h4>🌲 林票/林业碳票 · 三明</h4>
+      <h3>🌲 林票/林业碳票 · 三明</h3>
       <p>全国首创林票与林业碳票制度；2021年首张林业碳票（常口村编号0000001）卖出14万元。<a class="src" href="http://www.news.cn/zgjx/2022-11/01/c_1310667656_2.htm">源</a></p>
       <p>累计制发林票<b>7.2亿元</b>、惠及8万余林农；碳票累计签发<b>139万吨</b>。<a class="src" href="http://fj.people.cn/BIG5/n2/2025/0820/c181466-41327303.html">人民网福建</a> · <a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">中国网福建</a></p>
       <p>2026年3月碳票注册登记系统投用，首批<b>67宗近130万吨</b>"上链"。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">源</a></p>
     </div>
     <div class="card eco ocean">
-      <h4>🔵 蓝碳票 · 湛江/连江/深圳/霞浦</h4>
+      <h3>🔵 蓝碳票 · 湛江/连江/深圳/霞浦</h3>
       <p>湛江2021年全国首笔蓝碳交易：<b>66元/吨 × 5880吨</b>（基金会公益采购）。<a class="src" href="https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html">源</a></p>
       <p>连江2023年全国首张蓝色碳票（渔业）：约<b>2.7万吨 / 20元</b>参考价。<a class="src" href="http://m.people.cn/n4/2023/0605/c1142-20620310.html">源</a></p>
       <p>深圳2023年全国首单红树林拍卖：<b>183→485元/吨</b>，溢价165%。<a class="src" href="http://sz.people.com.cn/n2/2023/0927/c202846-40586889.html">源</a> 霞浦2026-03 CCER登记。<a class="src" href="http://finance.people.com.cn/n1/2026/0323/c1004-40687194.html">源</a></p>
@@ -331,7 +335,7 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   <!-- 价格对比图 -->
   <div class="chart">
     <div class="chart-title">📊 三类碳汇成交价格对比（元/吨）</div>
-    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。纹理：<b style="color:var(--forest2)">斜纹=林</b> · <b style="color:var(--grass)">点纹=草</b>（色盲友好）。图例：<b style="color:var(--forest2)">林</b> · <b style="color:var(--grass)">草</b> · <b style="color:var(--ocean2)">蓝碳</b> · <b style="color:var(--goldD)">跨生态</b></div>
+    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。纹理：<b style="color:var(--forest2)">斜纹=林</b> · <b style="color:var(--grassD)">点纹=草</b>（色盲友好）。图例：<b style="color:var(--forest2)">林</b> · <b style="color:var(--grassD)">草</b> · <b style="color:var(--ocean2)">蓝碳</b> · <b style="color:var(--goldD)">跨生态</b></div>
     <div class="legend" style="margin-bottom:10px">
       <span><i style="background:var(--forest2)"></i>林（三明/漳平）</span>
       <span><i style="background:var(--grass)"></i>草（达茂旗）</span>
@@ -442,9 +446,9 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
     <b>为什么必须"调质"而不是简单 1:1 加总：</b>草票按 VCS VM0026、林票按地方/CCER、蓝碳按 VCS+CCB，方法学保守性、监测频率、持久期承诺都不同。若不调质，直接 1吨草票=1吨林票=1吨蓝票，等于把不同质量的碳硬当成等值。国际机制早已给出答案：<b>质量差异用"折减/缓冲"在发行端解决，而不是在价格端用行政系数解决</b>。
   </div>
   <div class="grid g3">
-    <div class="card"><h4>🛡 风险逆转缓冲</h4><p>从每期签发量划扣一定比例进入缓冲池，对冲火灾/退化/逆转风险。</p><p><b>国际参照：</b>ACCU 对<b>所有封存项目强制 5% 风险逆转缓冲</b>。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
-    <div class="card"><h4>⏳ 持久期折减</h4><p>持久期越短、永久性越差，折减越高。</p><p><b>国际参照：</b>ACCU 25年期项目再扣 <b>20%</b>（合计25%），100年期仅5%缓冲。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
-    <div class="card"><h4>🎯 绩效解锁/签发挂钩</h4><p>碳汇信用与持续绩效里程碑挂钩，达标才释放。</p><p><b>国际参照：</b>美国 EPA 湿地补偿银行 credit release 与绩效里程碑挂钩（Mitigation Rule 2008）。</p></div>
+    <div class="card"><h3>🛡 风险逆转缓冲</h3><p>从每期签发量划扣一定比例进入缓冲池，对冲火灾/退化/逆转风险。</p><p><b>国际参照：</b>ACCU 对<b>所有封存项目强制 5% 风险逆转缓冲</b>。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
+    <div class="card"><h3>⏳ 持久期折减</h3><p>持久期越短、永久性越差，折减越高。</p><p><b>国际参照：</b>ACCU 25年期项目再扣 <b>20%</b>（合计25%），100年期仅5%缓冲。<a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">CER</a></p></div>
+    <div class="card"><h3>🎯 绩效解锁/签发挂钩</h3><p>碳汇信用与持续绩效里程碑挂钩，达标才释放。</p><p><b>国际参照：</b>美国 EPA 湿地补偿银行 credit release 与绩效里程碑挂钩（Mitigation Rule 2008）。</p></div>
   </div>
   <h3>巴黎协定的"调质"参照（已写入国际规则）</h3>
   <div class="tbl-wrap"><table>
@@ -460,9 +464,9 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
 <section id="registry">
   <h2><span class="no">四</span>登记端：统一记账（一本账）</h2>
   <div class="grid g3">
-    <div class="card"><h4>🔢 统一序列号与注销锁定</h4><p>每张票经调质后获得唯一 tCO₂e 序列号，登记、流转、注销全程可追溯。参照澳大利亚 ANREU 登记簿、三明碳票数字"身份证"经验。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">三明上链</a></p></div>
-    <div class="card"><h4>⚖ 防止双重计算</h4><p><b>注销锁定</b>：碳票用于抵消后必须注销、不可再流通。<b>相应调整（巴黎6.2模式）</b>：跨区域转移时输出方扣减、输入方计入，同一吨碳不重复计入两个区域。</p></div>
-    <div class="card"><h4>🗺 服务区/替代原则</h4><p>借鉴 EPA 湿地补偿银行（Mitigation Rule 2008, 33 CFR 332）的"服务区"概念：跨生态兑换时明确替代补偿的服务区范围，避免远距离兑换导致生态功能错位。</p></div>
+    <div class="card"><h3>🔢 统一序列号与注销锁定</h3><p>每张票经调质后获得唯一 tCO₂e 序列号，登记、流转、注销全程可追溯。参照澳大利亚 ANREU 登记簿、三明碳票数字"身份证"经验。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">三明上链</a></p></div>
+    <div class="card"><h3>⚖ 防止双重计算</h3><p><b>注销锁定</b>：碳票用于抵消后必须注销、不可再流通。<b>相应调整（巴黎6.2模式）</b>：跨区域转移时输出方扣减、输入方计入，同一吨碳不重复计入两个区域。</p></div>
+    <div class="card"><h3>🗺 服务区/替代原则</h3><p>借鉴 EPA 湿地补偿银行（Mitigation Rule 2008, 33 CFR 332）的"服务区"概念：跨生态兑换时明确替代补偿的服务区范围，避免远距离兑换导致生态功能错位。</p></div>
   </div>
 </section>
 
@@ -479,9 +483,9 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
 
   <h3>5.2 为什么不能设行政固定汇率（学术依据）</h3>
   <div class="grid g3">
-    <div class="card"><h4>Woerman (2023, JEEM)</h4><p>正式证明统一价格/1:1链接<b>"很少社会最优"</b>，而<b>兑换率（exchange rate）</b>让不同市场配额以不同价值流通，更接近社会最优——"两地区都受益、环境也受益"。</p><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a> · <a class="src" href="https://www.umass.edu/news/article/linking-carbon-markets-allowance-exchange-rate-yields-environmental-economic-dividends">UMass解读</a></div>
-    <div class="card"><h4>Burtraw, Palmer &amp; Munnings (RFF)</h4><p>提出"兑换率"机制——让一个体系配额在另一体系以不同合规价值流通，用兑换率调整不同项目的严格程度差异。</p><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF WP 17-16</a></div>
-    <div class="card"><h4>2023 年碳市场崩盘（现实例证）</h4><p>S&amp;P Platts 自然碳清除价格从 11.5 美元跌至 <b>3.5美元/吨</b>（跌约70%）。<b>若当初设固定行政汇率，市场早已崩穿。</b></p><a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&amp;P Global</a></div>
+    <div class="card"><h3>Woerman (2023, JEEM)</h3><p>正式证明统一价格/1:1链接<b>"很少社会最优"</b>，而<b>兑换率（exchange rate）</b>让不同市场配额以不同价值流通，更接近社会最优——"两地区都受益、环境也受益"。</p><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a> · <a class="src" href="https://www.umass.edu/news/article/linking-carbon-markets-allowance-exchange-rate-yields-environmental-economic-dividends">UMass解读</a></div>
+    <div class="card"><h3>Burtraw, Palmer &amp; Munnings (RFF)</h3><p>提出"兑换率"机制——让一个体系配额在另一体系以不同合规价值流通，用兑换率调整不同项目的严格程度差异。</p><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF WP 17-16</a></div>
+    <div class="card"><h3>2023 年碳市场崩盘（现实例证）</h3><p>S&amp;P Platts 自然碳清除价格从 11.5 美元跌至 <b>3.5美元/吨</b>（跌约70%）。<b>若当初设固定行政汇率，市场早已崩穿。</b></p><a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&amp;P Global</a></div>
   </div>
 
   <h3>5.3 市场如何发现价值（"升贴水"模式）</h3>
@@ -498,10 +502,10 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   <h2><span class="no">六</span>交换激励分析（谁换？为什么换？）</h2>
   <p class="lead">机制设计的灵魂。若没有供需激励，1:1 互通就是空转。四类真实激励：</p>
   <div class="grid g2">
-    <div class="card"><h4>① 需求侧指定</h4><p>企业/机构有明确生态偏好：医疗公益想"支持草原"、沿海企业想"支持海洋修复"、文旅品牌想"碳中和+本地林"。指定需求驱动跨票兑换。</p></div>
-    <div class="card"><h4>② 流动性解锁 → 价格发现 → 供给激励（核心）</h4><p>草票现 7元/吨、本地流转、流动性极低；互通后进入全国市场，价格向同类生态碳汇价格带收敛（林业15–22.68、跨生态120、蓝碳66–485）。<b>价格上行 → 激励牧民禁牧/修复 → 新增固碳</b>。这是互通对零碳的直接贡献，也是效益测算的支点。</p></div>
-    <div class="card"><h4>③ 权益组合（碳 + 非碳生态价值）</h4><p>一票不只含碳。据谢高地等(2015)当量因子表：森林针阔混交气候调节当量 <b>7.03</b>、生物多样性 <b>2.60</b>；草原气候调节 <b>1.34</b>、生物多样性 <b>0.56</b>；湿地水文调节 <b>24.23</b>。互通让"碳+生态权益"可拆分、可组合、可跨生态打包。</p></div>
-    <div class="card"><h4>④ 合规对冲与风险管理</h4><p>企业用相对低价生态碳汇对冲合规成本；持有方通过跨生态兑换分散单一生态风险（火灾、病虫害等）。</p></div>
+    <div class="card"><h3>① 需求侧指定</h3><p>企业/机构有明确生态偏好：医疗公益想"支持草原"、沿海企业想"支持海洋修复"、文旅品牌想"碳中和+本地林"。指定需求驱动跨票兑换。</p></div>
+    <div class="card"><h3>② 流动性解锁 → 价格发现 → 供给激励（核心）</h3><p>草票现 7元/吨、本地流转、流动性极低；互通后进入全国市场，价格向同类生态碳汇价格带收敛（林业15–22.68、跨生态120、蓝碳66–485）。<b>价格上行 → 激励牧民禁牧/修复 → 新增固碳</b>。这是互通对零碳的直接贡献，也是效益测算的支点。</p></div>
+    <div class="card"><h3>③ 权益组合（碳 + 非碳生态价值）</h3><p>一票不只含碳。据谢高地等(2015)当量因子表：森林针阔混交气候调节当量 <b>7.03</b>、生物多样性 <b>2.60</b>；草原气候调节 <b>1.34</b>、生物多样性 <b>0.56</b>；湿地水文调节 <b>24.23</b>。互通让"碳+生态权益"可拆分、可组合、可跨生态打包。</p></div>
+    <div class="card"><h3>④ 合规对冲与风险管理</h3><p>企业用相对低价生态碳汇对冲合规成本；持有方通过跨生态兑换分散单一生态风险（火灾、病虫害等）。</p></div>
   </div>
 
   <!-- 当量因子图 -->
@@ -549,12 +553,12 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
     <div class="basis">基础数据：达茂旗首期已签发碳汇 <b>40万吨</b><a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；草票现行价 <b>7 元/吨</b><a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></div>
     <div class="ctl">
       <div>
-        <label>互通后草票价格（元/吨）—— 参考林业碳票 15–22.68（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></label>
+        <label for="price">互通后草票价格（元/吨）—— 参考林业碳票 15–22.68（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></label>
         <input type="range" id="price" min="7" max="30" step="0.5" value="15">
         <span class="val" id="priceV">15 元/吨</span>
       </div>
       <div>
-        <label>已核证碳汇入市比例（%）</label>
+        <label for="ratio">已核证碳汇入市比例（%）</label>
         <input type="range" id="ratio" min="5" max="100" step="5" value="20">
         <span class="val" id="ratioV">20%</span>
       </div>
@@ -596,9 +600,9 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
 <section id="pilot">
   <h2><span class="no">十一</span>试点落地路径</h2>
   <div class="grid g3">
-    <div class="card"><h4>🧪 最小可行试点（MVP）</h4><p>以<b>达茂旗（草）+ 三明（林）</b>为第一对试点（两者已有上海"一票通"合作基础、已有"生态修复草原162亩 + 医疗碳汇林204亩"落地成果<a class="src" href="https://m.gmw.cn/toutiao/2026-06/22/content_38841756.htm">源</a>），先做<b>两票互通</b>验证三环节，再扩展蓝碳（连江/湛江）。</p></div>
-    <div class="card"><h4>🏥 对接"碳惠锦旗"场景</h4><p>团队已有"碳惠锦旗"实践（患者购买碳汇代替实体锦旗，已上线全国统一交易平台，交易量超1200单——团队会议记录）。将三票互通接入：患者可自愿选择"支持草原/森林/海洋"任一碳汇，兑换价按市场发现。</p></div>
-    <div class="card"><h4>🚀 可复制场景</h4><p>医疗公益、文旅碳中和、企业 ESG、赛事中和（三明已对接省运会76场赛事<a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">源</a>）。</p></div>
+    <div class="card"><h3>🧪 最小可行试点（MVP）</h3><p>以<b>达茂旗（草）+ 三明（林）</b>为第一对试点（两者已有上海"一票通"合作基础、已有"生态修复草原162亩 + 医疗碳汇林204亩"落地成果<a class="src" href="https://m.gmw.cn/toutiao/2026-06/22/content_38841756.htm">源</a>），先做<b>两票互通</b>验证三环节，再扩展蓝碳（连江/湛江）。</p></div>
+    <div class="card"><h3>🏥 对接"碳惠锦旗"场景</h3><p>团队已有"碳惠锦旗"实践（患者购买碳汇代替实体锦旗，已上线全国统一交易平台，交易量超1200单——团队会议记录）。将三票互通接入：患者可自愿选择"支持草原/森林/海洋"任一碳汇，兑换价按市场发现。</p></div>
+    <div class="card"><h3>🚀 可复制场景</h3><p>医疗公益、文旅碳中和、企业 ESG、赛事中和（三明已对接省运会76场赛事<a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">源</a>）。</p></div>
   </div>
 </section>
 
@@ -647,7 +651,7 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   </div>
 </section>
 
-</div><!-- /container -->
+</main>
 
 <footer>
   <div class="container">
@@ -708,7 +712,7 @@ function renderPriceChart(){
     var fill = d.color;
     if(d.label.indexOf('林票')===0){ fill='url(#pForest)'; }
     else if(d.label.indexOf('草票')===0){ fill='url(#pGrass)'; }
-    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+fill+'" opacity="0.94"/></a>';
+    svg += '<a href="'+d.src+'" target="_blank" rel="noopener" aria-label="'+d.label+' '+d.v+' 元/吨，查看数据来源"><title>'+d.label+' '+d.v+' 元/吨</title><rect data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+fill+'" opacity="0.94"/></a>';
     svg += '<rect data-i="'+i+'" x="'+(x+bw/2-14)+'" y="'+(y-22)+'" width="28" height="18" rx="9" fill="#15221a" opacity="0"/>';
     svg += '<text data-i="'+i+'" x="'+(x+bw/2)+'" y="'+(y-8)+'" font-size="12" font-weight="800" fill="#15221a" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">'+d.v+'</text>';
     svg += '<text x="'+(x+bw/2)+'" y="'+(H-padB+18)+'" font-size="10.5" fill="#57685e" text-anchor="middle">'+d.label+'</text>';
