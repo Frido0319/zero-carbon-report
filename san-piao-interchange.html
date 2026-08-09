@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><rect width=%22512%22 height=%22512%22 rx=%2296%22 fill=%22%230e3a2a%22/><rect x=%2272%22 y=%22150%22 width=%2272%22 height=%22250%22 rx=%2218%22 fill=%22%231e6b4c%22/><rect x=%22184%22 y=%22150%22 width=%2272%22 height=%22250%22 rx=%2218%22 fill=%22%237faf4b%22/><rect x=%22296%22 y=%22150%22 width=%2272%22 height=%22250%22 rx=%2218%22 fill=%22%232e7bb8%22/><rect x=%2252%22 y=%22238%22 width=%22408%22 height=%2228%22 rx=%2214%22 fill=%22%23c8a24b%22/><circle cx=%22256%22 cy=%22196%22 r=%2226%22 fill=%22%23c8a24b%22/></svg>">
 <style>
 /* ============================================================
    生态金融档案 · Design tokens
@@ -331,7 +331,7 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transfor
   <!-- 价格对比图 -->
   <div class="chart">
     <div class="chart-title">📊 三类碳汇成交价格对比（元/吨）</div>
-    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。图例：<b style="color:var(--forest2)">林</b> · <b style="color:var(--grass)">草</b> · <b style="color:var(--ocean2)">蓝碳</b> · <b style="color:var(--goldD)">跨生态</b></div>
+    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。纹理：<b style="color:var(--forest2)">斜纹=林</b> · <b style="color:var(--grass)">点纹=草</b>（色盲友好）。图例：<b style="color:var(--forest2)">林</b> · <b style="color:var(--grass)">草</b> · <b style="color:var(--ocean2)">蓝碳</b> · <b style="color:var(--goldD)">跨生态</b></div>
     <div class="legend" style="margin-bottom:10px">
       <span><i style="background:var(--forest2)"></i>林（三明/漳平）</span>
       <span><i style="background:var(--grass)"></i>草（达茂旗）</span>
@@ -689,7 +689,10 @@ function renderPriceChart(){
   var innerW = W-padL-padR, innerH = H-padT-padB;
   var maxV = logScale ? scaleOf(500) : 500;
   var svg = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
-  svg += '<defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e8b63"/><stop offset="1" stop-color="#1e6b4c"/></linearGradient></defs>';
+  svg += '<defs>'
+      + '<pattern id="pForest" patternUnits="userSpaceOnUse" width="9" height="9"><rect width="9" height="9" fill="#1e6b4c"/><path d="M0,9 L9,0" stroke="#d6e9dc" stroke-width="2" opacity="0.6"/></pattern>'
+      + '<pattern id="pGrass" patternUnits="userSpaceOnUse" width="9" height="9"><rect width="9" height="9" fill="#7faf4b"/><circle cx="4.5" cy="4.5" r="1.5" fill="#f2f7ea" opacity="0.9"/></pattern>'
+      + '</defs>';
   for(var g=0; g<=4; g++){
     var yy = padT + innerH - g*innerH/4;
     var gv = logScale ? Math.round(Math.pow(10, g*Math.log10(500)/4)) : g*500/4;
@@ -702,7 +705,10 @@ function renderPriceChart(){
     var h = Math.max(3, scaleOf(d.v)/maxV * innerH);
     var y = padT + innerH - h;
     svg += '<g class="pbar">';
-    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+d.color+'" opacity="0.92"/></a>';
+    var fill = d.color;
+    if(d.label.indexOf('林票')===0){ fill='url(#pForest)'; }
+    else if(d.label.indexOf('草票')===0){ fill='url(#pGrass)'; }
+    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+fill+'" opacity="0.94"/></a>';
     svg += '<rect data-i="'+i+'" x="'+(x+bw/2-14)+'" y="'+(y-22)+'" width="28" height="18" rx="9" fill="#15221a" opacity="0"/>';
     svg += '<text data-i="'+i+'" x="'+(x+bw/2)+'" y="'+(y-8)+'" font-size="12" font-weight="800" fill="#15221a" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">'+d.v+'</text>';
     svg += '<text x="'+(x+bw/2)+'" y="'+(H-padB+18)+'" font-size="10.5" fill="#57685e" text-anchor="middle">'+d.label+'</text>';
@@ -726,8 +732,10 @@ function renderFactorChart(){
   var W=860, H=340, padL=64, padR=20, padT=24, padB=44;
   var innerW=W-padL-padR, innerH=H-padT-padB, maxV=8;
   var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
-  svg += '<defs><linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e8b63"/><stop offset="1" stop-color="#1e6b4c"/></linearGradient>'
-      +  '<linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7c96f"/><stop offset="1" stop-color="#7faf4b"/></linearGradient></defs>';
+  svg += '<defs>'
+      + '<pattern id="pForest" patternUnits="userSpaceOnUse" width="9" height="9"><rect width="9" height="9" fill="#1e6b4c"/><path d="M0,9 L9,0" stroke="#d6e9dc" stroke-width="2" opacity="0.6"/></pattern>'
+      + '<pattern id="pGrass" patternUnits="userSpaceOnUse" width="9" height="9"><rect width="9" height="9" fill="#7faf4b"/><circle cx="4.5" cy="4.5" r="1.5" fill="#f2f7ea" opacity="0.9"/></pattern>'
+      + '</defs>';
   for(var g=0; g<=4; g++){
     var yy=padT+innerH-g*innerH/4, gv=g*maxV/4;
     svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#edf1e9" stroke-dasharray="'+(g===0?'0':'3 4')+'"/>';
@@ -737,8 +745,8 @@ function renderFactorChart(){
   data.forEach(function(d,i){
     var x=padL+i*gw+gw*0.25;
     var hf=Math.max(3,d.forest/maxV*innerH), hg=Math.max(3,d.grass/maxV*innerH);
-    svg+='<rect data-f="'+i+'" x="'+x+'" y="'+(padT+innerH-hf)+'" width="'+bw+'" height="'+hf+'" rx="5" fill="url(#gF)" opacity="0.94"/>';
-    svg+='<rect data-g="'+i+'" x="'+(x+bw+4)+'" y="'+(padT+innerH-hg)+'" width="'+bw+'" height="'+hg+'" rx="5" fill="url(#gG)" opacity="0.94"/>';
+    svg+='<rect data-f="'+i+'" x="'+x+'" y="'+(padT+innerH-hf)+'" width="'+bw+'" height="'+hf+'" rx="5" fill="url(#pForest)" opacity="0.94"/>';
+    svg+='<rect data-g="'+i+'" x="'+(x+bw+4)+'" y="'+(padT+innerH-hg)+'" width="'+bw+'" height="'+hg+'" rx="5" fill="url(#pGrass)" opacity="0.94"/>';
     svg+='<text data-f="'+i+'" x="'+x+'" y="'+(padT+innerH-hf-7)+'" font-size="10.5" font-weight="700" fill="#1e6b4c" text-anchor="middle">'+d.forest+'</text>';
     svg+='<text data-g="'+i+'" x="'+(x+bw+4)+'" y="'+(padT+innerH-hg-7)+'" font-size="10.5" font-weight="700" fill="#5d8a38" text-anchor="middle">'+d.grass+'</text>';
     svg+='<text x="'+(x+gw/2)+'" y="'+(H-padB+16)+'" font-size="11" fill="#57685e" text-anchor="middle">'+d.name+'</text>';
