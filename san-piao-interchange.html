@@ -5,112 +5,226 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>三票互通机制设计方案 — 林票·草票·蓝碳票跨生态碳汇凭证互通</title>
 <meta name="description" content="首届全国大学生零碳科技创新大赛 · 开放赛道·方向4机制促碳 · 三票（林票/草票/蓝碳票）跨生态系统碳汇凭证互通机制设计">
+<meta name="theme-color" content="#0e3a2a">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
 <style>
+/* ============================================================
+   生态金融档案 · Design tokens
+   美学方向：refined institutional · 三票三色系统贯穿全页
+   ============================================================ */
 :root{
-  --forest:#2d6a4f; --forest2:#40916c; --grass:#95d5b2; --grass2:#74c69d;
-  --blue:#1d6fd6; --sky:#a8d5f5; --ink:#16241d; --ink2:#4a5d52;
-  --bg:#f3f8f5; --card:#ffffff; --line:#dbe8e1; --warn:#b08900; --warnbg:#fff8e1;
-  --shadow:0 2px 10px rgba(22,36,29,.06);
+  --forest:#0e3a2a;      /* 深森林 — 主色 */
+  --forest2:#1e6b4c;     /* 林票绿 */
+  --pine:#2e8b63;        /* 中绿 */
+  --grass:#7faf4b;       /* 草票黄绿 */
+  --grassL:#e9f2dc;
+  --ocean:#0f4c81;       /* 蓝票深蓝 */
+  --ocean2:#2e7bb8;
+  --oceanL:#dcebf7;
+  --gold:#c8a24b;        /* 金色 — 数据/价值强调 */
+  --goldD:#8a6d1f;
+  --goldL:#f6edd8;
+  --ink:#15221a;
+  --ink2:#57685e;
+  --ink3:#8aa095;
+  --paper:#f4f5ef;       /* 米白纸感 */
+  --card:#ffffff;
+  --line:#e1e7dd;
+  --line2:#cbd6cb;
+  --shadow:0 1px 2px rgba(14,58,42,.05),0 12px 30px -14px rgba(14,58,42,.16);
+  --shadowH:0 2px 5px rgba(14,58,42,.07),0 22px 46px -18px rgba(14,58,42,.26);
   --radius:14px;
-  --font:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --font-head:"Source Han Serif SC","Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --font-body:"Source Han Sans SC","Noto Sans CJK SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
-.container{max-width:1180px;margin:0 auto;padding:0 22px}
-a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}
-a:hover{border-bottom-color:var(--blue)}
-a.src{color:var(--blue);font-size:.82em;border-bottom:1px dashed #9dc6f0;white-space:nowrap}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.78;font-size:15px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+/* 纸感噪点纹理（覆盖全页，pointer-events 穿透） */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.container{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
+a{color:var(--ocean2);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--ocean2)}
+a.src{color:var(--ocean2);font-size:.8em;border-bottom:1px dashed #b4cfdd;white-space:nowrap;padding-bottom:1px}
 a.src:hover{border-bottom-style:solid}
 sup{font-size:.72em;margin-left:1px}
 
-/* ===== 头部 ===== */
-header{background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 55%,#1d6fd6 140%);color:#fff;padding:58px 0 46px;position:relative;overflow:hidden}
-header::after{content:"";position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%)}
-.badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);padding:5px 14px;border-radius:999px;font-size:.82em;letter-spacing:.06em;margin-bottom:18px}
-header h1{font-size:2.15rem;font-weight:800;line-height:1.35;letter-spacing:.01em}
-header .sub{font-size:1.05rem;opacity:.92;margin-top:10px}
-.tags{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
-.tags span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:8px;font-size:.8em}
+/* ============================================================
+   头部 — 深绿档案 + 三色山峦 + 交错入场
+   ============================================================ */
+header{position:relative;color:#eef3ea;background:linear-gradient(158deg,#0a2c1f 0%,#0e3a2a 42%,#15472f 74%,#123a3f 110%);overflow:hidden;padding:74px 0 96px}
+header::after{content:"";position:absolute;right:-140px;top:-150px;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,162,75,.16),rgba(46,139,99,.10) 45%,transparent 70%)}
+.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:190px;pointer-events:none}
+.hills path{transition:opacity .6s}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,162,75,.14);border:1px solid rgba(200,162,75,.45);color:#e6cf94;padding:6px 16px;border-radius:999px;font-size:.8rem;letter-spacing:.08em;margin-bottom:22px;font-weight:600}
+header h1{font-family:var(--font-head);font-size:clamp(2.1rem,4.6vw,3.05rem);font-weight:800;line-height:1.22;letter-spacing:.02em;max-width:820px}
+header .sub{font-size:clamp(1rem,1.7vw,1.15rem);opacity:.9;margin-top:14px;font-weight:500;letter-spacing:.03em}
+.tags{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
+.tags span{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:10px;font-size:.84rem;font-weight:600;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16)}
+.tags span:nth-child(1){border-top:3px solid var(--forest2)}
+.tags span:nth-child(2){border-top:3px solid var(--gold)}
+.tags span:nth-child(3){border-top:3px solid var(--grass)}
+.tags span:nth-child(4){border-top:3px solid var(--ocean2)}
+html.js header .badge,html.js header h1,html.js header .sub,html.js header .tags{opacity:0;animation:rise .7s cubic-bezier(.22,.7,.3,1) forwards}
+html.js header .badge{animation-delay:.05s}
+html.js header h1{animation-delay:.16s}
+html.js header .sub{animation-delay:.28s}
+html.js header .tags{animation-delay:.4s}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
-/* ===== 导航 ===== */
-nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-nav .container{display:flex;gap:4px;overflow-x:auto;padding:10px 22px;scrollbar-width:none}
+/* ============================================================
+   导航
+   ============================================================ */
+nav{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(14,58,42,.03)}
+nav .container{display:flex;gap:2px;overflow-x:auto;padding:9px 24px;scrollbar-width:none}
 nav .container::-webkit-scrollbar{display:none}
-nav a{color:var(--ink2);font-size:.88em;padding:6px 12px;border-radius:8px;white-space:nowrap;border:none}
-nav a:hover{background:var(--bg);color:var(--forest);border:none}
+nav a{color:var(--ink2);font-size:.86rem;font-weight:600;padding:7px 13px;border-radius:9px;white-space:nowrap;border:none;transition:background .18s,color .18s}
+nav a:hover{background:var(--goldL);color:var(--goldD);border:none}
 
-/* ===== 章节 ===== */
-section{padding:46px 0 8px}
-section h2{font-size:1.6rem;font-weight:800;color:var(--forest);margin-bottom:8px;display:flex;align-items:center;gap:10px}
-section h2 .no{font-size:.85em;background:var(--forest);color:#fff;width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-section h3{font-size:1.18rem;font-weight:700;color:var(--ink);margin:30px 0 12px;padding-left:12px;border-left:4px solid var(--forest2)}
-section h4{font-size:1rem;font-weight:700;margin:18px 0 8px;color:var(--forest2)}
-.lead{color:var(--ink2);font-size:1.02rem;max-width:880px;margin-bottom:8px}
+/* ============================================================
+   章节
+   ============================================================ */
+section{padding:52px 0 10px}
+section h2{font-family:var(--font-head);font-size:clamp(1.5rem,2.6vw,1.9rem);font-weight:800;color:var(--forest);display:flex;align-items:center;gap:14px;
+  padding-bottom:15px;border-bottom:2px solid var(--line);margin-bottom:22px;position:relative}
+section h2::after{content:"";position:absolute;left:0;bottom:-2px;width:74px;height:2px;background:linear-gradient(90deg,var(--gold),rgba(200,162,75,0))}
+section h2 .no{font-family:var(--font-body);font-size:.8em;background:linear-gradient(145deg,var(--gold),#d9b15e);color:#3d320b;width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px -4px rgba(200,162,75,.6)}
+section h3{font-family:var(--font-head);font-size:1.22rem;font-weight:700;color:var(--ink);margin:34px 0 14px;padding-left:14px;border-left:4px solid var(--pine)}
+section h4{font-size:1rem;font-weight:800;margin:18px 0 8px;color:var(--forest2)}
+.lead{color:var(--ink2);font-size:1.03rem;max-width:880px;margin-bottom:8px}
 p{margin-bottom:12px}
+p b,td b,.card b{font-weight:800}
 
-/* ===== 卡片 ===== */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin:16px 0}
-.grid{display:grid;gap:16px}
+/* ============================================================
+   卡片
+   ============================================================ */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin:18px 0;transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadowH)}
+.eco{position:relative;overflow:hidden}
+.eco::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.eco.forest::before{background:var(--forest2)}
+.eco.grass::before{background:var(--grass)}
+.eco.ocean::before{background:var(--ocean2)}
+.eco h4{margin-top:0;color:var(--ink)}
+.grid{display:grid;gap:18px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(265px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.stat b{display:block;font-size:1.7rem;font-weight:800;color:var(--forest);line-height:1.2}
-.stat span{font-size:.85em;color:var(--ink2)}
 
-/* ===== 表格 ===== */
-.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px}
-table{border-collapse:collapse;width:100%;font-size:.92em;min-width:640px;background:#fff}
-th{background:#eef5f0;color:var(--forest);text-align:left;font-weight:700;padding:11px 14px;border-bottom:2px solid var(--line);white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+/* 统计卡（摘要数据快照） */
+.stat-card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px 24px 20px;box-shadow:var(--shadow);transition:transform .22s,box-shadow .22s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadowH)}
+.stat-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
+.stat-card.t-forest::before{background:linear-gradient(180deg,var(--forest2),var(--pine))}
+.stat-card.t-grass::before{background:linear-gradient(180deg,var(--grass),#a7c96f)}
+.stat-card.t-ocean::before{background:linear-gradient(180deg,var(--ocean),var(--ocean2))}
+.stat-card b{display:block;font-family:var(--font-head);font-size:1.9rem;font-weight:800;color:var(--forest);line-height:1.25;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.stat-card span{font-size:.85em;color:var(--ink2);display:block;margin-top:4px}
+.stat-card.t-ocean b{color:var(--ocean)}
+
+/* ============================================================
+   表格
+   ============================================================ */
+.tbl-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.9em;min-width:680px}
+th{background:var(--forest);color:#eaf2ec;text-align:left;font-weight:700;padding:12px 15px;border-bottom:2px solid var(--forest);white-space:nowrap;letter-spacing:.02em}
+td{padding:12px 15px;border-bottom:1px solid var(--line);vertical-align:top;background:#fff}
+tr:nth-child(even) td{background:#fafbf7}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#f7fbf8}
+tr:hover td{background:var(--goldL)}
 
-/* ===== 架构图 ===== */
-.arch{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;overflow-x:auto;margin:16px 0}
-.arch svg{min-width:820px;width:100%;height:auto;display:block}
+/* ============================================================
+   架构图
+   ============================================================ */
+.arch{background:linear-gradient(180deg,#fff,#f7f8f3);border:1px solid var(--line);border-radius:var(--radius);padding:20px;overflow-x:auto;margin:18px 0;box-shadow:var(--shadow)}
+.arch svg{min-width:840px;width:100%;height:auto;display:block}
 
-/* ===== 图表 ===== */
-.chart{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:16px 0}
-.chart .chart-title{font-weight:700;color:var(--ink);margin-bottom:4px}
-.chart .chart-sub{font-size:.84em;color:var(--ink2);margin-bottom:12px}
+/* ============================================================
+   图表
+   ============================================================ */
+.chart{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:18px 0;box-shadow:var(--shadow)}
+.chart .chart-title{font-family:var(--font-head);font-weight:800;color:var(--ink);margin-bottom:5px;font-size:1.08rem}
+.chart .chart-sub{font-size:.84em;color:var(--ink2);margin-bottom:14px}
+.chart .chart-body{position:relative}
 .chart svg{width:100%;height:auto;display:block}
-.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82em;color:var(--ink2);margin-top:8px}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tip{position:absolute;z-index:30;pointer-events:none;background:rgba(14,58,42,.96);color:#eef3ea;padding:9px 13px;border-radius:10px;font-size:.8rem;line-height:1.5;box-shadow:0 8px 22px -8px rgba(0,0,0,.5);opacity:0;transition:opacity .15s;max-width:240px}
+.tip a{color:#cfe4ef;border-bottom:1px dashed #7fb0d9}
+.tip .tv{font-weight:800;color:var(--gold);font-size:.95rem}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.82em;color:var(--ink2);margin-top:10px;align-items:center}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+.btn{background:linear-gradient(145deg,var(--forest2),var(--pine));color:#fff;border:none;padding:7px 16px;border-radius:9px;cursor:pointer;font-size:.82em;font-weight:700;box-shadow:0 3px 10px -3px rgba(30,107,76,.55);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px -3px rgba(30,107,76,.6)}
+.btn:active{transform:none}
 
-/* ===== 交互模型 ===== */
-.model{background:linear-gradient(180deg,#fff,#f4faf6);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:16px 0}
-.ctl{display:flex;flex-wrap:wrap;gap:26px;margin:16px 0}
-.ctl label{display:block;font-size:.85em;font-weight:700;color:var(--ink2);margin-bottom:6px}
-.ctl input[type=range]{width:240px;accent-color:var(--forest)}
-.ctl .val{font-weight:800;color:var(--forest);font-size:1.05em}
-.model-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
-.model-out .cell{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
-.model-out .cell b{display:block;font-size:1.5rem;color:var(--forest)}
+/* ============================================================
+   交互模型
+   ============================================================ */
+.model{background:linear-gradient(180deg,#fff 0%,#f6f8f2 100%);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin:18px 0;box-shadow:var(--shadow)}
+.model .basis{display:flex;flex-wrap:wrap;gap:10px;font-size:.83em;color:var(--ink2);padding:10px 14px;background:var(--goldL);border:1px solid #eadcb8;border-radius:10px;margin-bottom:6px}
+.model .basis b{color:var(--goldD)}
+.ctl{display:flex;flex-wrap:wrap;gap:34px;margin:20px 0 8px}
+.ctl > div{flex:1;min-width:250px}
+.ctl label{display:block;font-size:.86em;font-weight:700;color:var(--ink2);margin-bottom:10px;line-height:1.5}
+.ctl input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--grass),var(--pine));outline:none;margin:8px 0 12px}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--forest2);box-shadow:0 2px 8px rgba(0,0,0,.28);cursor:pointer;transition:transform .15s}
+.ctl input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+.ctl input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--forest2);cursor:pointer}
+.ctl .val{font-family:var(--font-head);font-weight:800;color:var(--forest);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.model-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:18px}
+.model-out .cell{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 2px 8px -4px rgba(14,58,42,.12)}
+.model-out .cell::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--pine))}
+.model-out .cell b{display:block;font-family:var(--font-head);font-size:1.55rem;font-weight:800;color:var(--forest);font-variant-numeric:tabular-nums}
 .model-out .cell span{font-size:.8em;color:var(--ink2)}
 
-/* ===== 提示框 ===== */
-.note{background:var(--warnbg);border:1px solid #f0dca6;border-radius:10px;padding:12px 16px;font-size:.9em;color:#6b5400;margin:12px 0}
-.note b{color:var(--warn)}
-.quote{background:#f0f7f2;border-left:4px solid var(--grass2);padding:14px 18px;border-radius:0 10px 10px 0;margin:14px 0;font-style:normal}
-.quote b{color:var(--forest)}
+/* ============================================================
+   提示框 / 引用
+   ============================================================ */
+.note{background:var(--goldL);border:1px solid #eadcb8;border-radius:11px;padding:13px 18px;font-size:.9em;color:#6b5a1e;margin:14px 0}
+.note b{color:var(--goldD)}
+.quote{position:relative;background:linear-gradient(90deg,#f0f6f1,#f7faf4);border-left:4px solid transparent;padding:16px 20px;border-radius:0 11px 11px 0;margin:16px 0}
+.quote::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px;background:linear-gradient(180deg,var(--forest2),var(--ocean2))}
+.quote b{color:var(--forest2)}
 
-/* ===== 流程 ===== */
-.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;font-size:.92em}
-.flow .step{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;color:var(--forest2)}
-.flow .arrow{color:var(--grass2);font-weight:800}
+/* ============================================================
+   流程
+   ============================================================ */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0;font-size:.92em}
+.flow .step{background:#fff;border:1px solid var(--line2);border-radius:999px;padding:8px 16px;font-weight:700;color:var(--forest2);box-shadow:0 2px 6px -3px rgba(14,58,42,.2)}
+.flow .arrow{color:var(--gold);font-weight:900;margin:0 1px}
 
-/* ===== 页脚 ===== */
-footer{background:#16241d;color:#b9cdc2;padding:34px 0;margin-top:60px;font-size:.86em}
-footer a{color:#a8d5f5}
+/* ============================================================
+   页脚
+   ============================================================ */
+footer{background:linear-gradient(160deg,#0a2c1f,#0e3a2a);color:#b7cdbf;padding:40px 0;margin-top:70px;font-size:.86em;border-top:3px solid var(--gold)}
+footer b{color:#fff;font-family:var(--font-head);letter-spacing:.02em}
+footer a{color:#8fc0d8}
 
-/* ===== 打印 ===== */
+/* ============================================================
+   滚动入场（由 JS 控制，无 JS 时页面正常显示）
+   ============================================================ */
+html.js .reveal{opacity:0;transform:translateY(18px)}
+html.js .reveal.in{opacity:1;transform:none;transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.3,1)}
+
+/* ============================================================
+   打印
+   ============================================================ */
 @media print{
-  nav{display:none}
-  .model{display:none}
-  header{background:#2d6a4f !important;-webkit-print-color-adjust:exact}
+  nav,.model{display:none}
+  header{background:#0e3a2a !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hills{opacity:.3}
+  html.js .reveal{opacity:1 !important;transform:none !important}
   section{break-inside:avoid}
+  body::before{display:none}
+  a{color:inherit}
+}
+@media (max-width:640px){
+  header{padding:52px 0 78px}
+  section h2{gap:10px}
+  .stat-card b{font-size:1.6rem}
 }
 </style>
 </head>
@@ -118,6 +232,11 @@ footer a{color:#a8d5f5}
 
 <!-- ================= 头部 ================= -->
 <header>
+  <svg class="hills" viewBox="0 0 1200 190" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,190 L0,118 Q170,26 360,96 T760,72 T1200,96 L1200,190 Z" fill="#0a241a" opacity=".85"/>
+    <path d="M0,190 L0,146 Q210,60 420,126 T840,112 T1200,132 L1200,190 Z" fill="#123528" opacity=".85"/>
+    <path d="M0,190 L0,166 Q260,104 500,158 T900,146 T1200,164 L1200,190 Z" fill="#184730" opacity=".6"/>
+  </svg>
   <div class="container">
     <span class="badge">首届全国大学生零碳科技创新大赛 · 开放赛道 · 方向4 机制促碳</span>
     <h1>三票互通机制设计方案</h1>
@@ -158,14 +277,14 @@ footer a{color:#a8d5f5}
   <p class="lead">目前林票（福建三明）、草票（内蒙古达茂旗）、蓝碳票（湛江/连江/深圳）各自独立发行、独立交易、价格悬殊，<b>缺乏统一的计量标尺、统一的登记体系与统一的定价机制</b>，跨生态碳汇资产无法互通。团队 8.8 会议记录明确指出核心障碍——三类票<b>产权分类不同</b>，法律层面直接合并存在困难。</p>
   <div class="card">
     <b>我们的设计：发行端调质 → 登记端统一记账 → 交易端市场化定价</b>
-    <div class="quote" style="margin-top:10px">
+    <div class="quote" style="margin-top:12px">
       <b>关键论证：</b>互通的是"碳汇经核证后的量化结果（tCO₂e）"，不是产权本身。类比——不同货币可按汇率兑换，无需合并货币主权；股票与债券产权不同，却统一用人民币结算。三类票仍归各自权属部门，只在"量化结果"层面统一记账与交换。
     </div>
   </div>
   <div class="grid g3">
-    <div class="card stat"><b>7 元/吨</b><span>达茂旗草票成交价（全国首张草票）<a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></span></div>
-    <div class="card stat"><b>15–22.68 元/吨</b><span>福建林业碳票价格带（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></span></div>
-    <div class="card stat"><b>66–485 元/吨</b><span>蓝碳：湛江66(公益) / 深圳485(拍卖溢价165%)<a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">源</a></span></div>
+    <div class="stat-card t-grass"><b>7 元/吨</b><span>达茂旗草票成交价（全国首张草票）<a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></span></div>
+    <div class="stat-card t-forest"><b>15–22.68 元/吨</b><span>福建林业碳票价格带（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></span></div>
+    <div class="stat-card t-ocean"><b>66–485 元/吨</b><span>蓝碳：湛江66(公益) / 深圳485(拍卖溢价165%)<a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">源</a></span></div>
   </div>
   <div class="note"><b>⚠ 数据口径提示：</b>达茂旗官方报道"项目累计碳汇量约 12916.25 万吨 CO₂e、年均 32 万吨、计入期 40 年"<a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；但按年均32万吨×40年≈1280万吨，两口径存在明显差异，建议以核证文件为准。本方案测算采用"首期已签发 40 万吨"口径。</div>
 </section>
@@ -184,20 +303,20 @@ footer a{color:#a8d5f5}
 
   <h3>1.2 三票实践现状（真实数据 + 真实来源）</h3>
   <div class="grid g3">
-    <div class="card">
-      <h4 style="border:none;padding:0;color:#1b6b34">🟢 草票 · 达茂旗</h4>
+    <div class="card eco grass">
+      <h4>🟢 草票 · 达茂旗</h4>
       <p>2024年12月6日全国首张"草票"，牧民保留承包权、经营权流转国企（租金+劳务+分红）。<a class="src" href="http://nm.people.com.cn/BIG5/n2/2025/1105/c196667-41401897.html">源</a></p>
       <p>首笔交易（2025-11）：<b>10万吨 / 70万元 / 7元每吨</b>，销往欧洲。<a class="src" href="https://news.cri.cn/2025-11-05/cdad9038-5e04-9414-c6e4-7047a3b86da6.html">源</a></p>
       <p>第二笔（2026-07-16）：<b>8万吨 / 56万元 / 仍7元</b>。方法学：VCS <b>VM0026</b>。<a class="src" href="https://news.qq.com/rain/a/20260807V0E60C00">源</a></p>
     </div>
-    <div class="card">
-      <h4 style="border:none;padding:0;color:#1b6b34">🌲 林票/林业碳票 · 三明</h4>
+    <div class="card eco forest">
+      <h4>🌲 林票/林业碳票 · 三明</h4>
       <p>全国首创林票与林业碳票制度；2021年首张林业碳票（常口村编号0000001）卖出14万元。<a class="src" href="http://www.news.cn/zgjx/2022-11/01/c_1310667656_2.htm">源</a></p>
       <p>累计制发林票<b>7.2亿元</b>、惠及8万余林农；碳票累计签发<b>139万吨</b>。<a class="src" href="http://fj.people.cn/BIG5/n2/2025/0820/c181466-41327303.html">人民网福建</a> · <a class="src" href="http://fj.china.com.cn/2026-03/20/content_43379100.htm">中国网福建</a></p>
       <p>2026年3月碳票注册登记系统投用，首批<b>67宗近130万吨</b>"上链"。<a class="src" href="http://www.tanpaifang.com/tanhui/2026/0402/117551.html">源</a></p>
     </div>
-    <div class="card">
-      <h4 style="border:none;padding:0;color:#1d6fd6">🔵 蓝碳票 · 湛江/连江/深圳/霞浦</h4>
+    <div class="card eco ocean">
+      <h4>🔵 蓝碳票 · 湛江/连江/深圳/霞浦</h4>
       <p>湛江2021年全国首笔蓝碳交易：<b>66元/吨 × 5880吨</b>（基金会公益采购）。<a class="src" href="https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html">源</a></p>
       <p>连江2023年全国首张蓝色碳票（渔业）：约<b>2.7万吨 / 20元</b>参考价。<a class="src" href="http://m.people.cn/n4/2023/0605/c1142-20620310.html">源</a></p>
       <p>深圳2023年全国首单红树林拍卖：<b>183→485元/吨</b>，溢价165%。<a class="src" href="http://sz.people.com.cn/n2/2023/0927/c202846-40586889.html">源</a> 霞浦2026-03 CCER登记。<a class="src" href="http://finance.people.com.cn/n1/2026/0323/c1004-40687194.html">源</a></p>
@@ -207,15 +326,15 @@ footer a{color:#a8d5f5}
   <!-- 价格对比图 -->
   <div class="chart">
     <div class="chart-title">📊 三类碳汇成交价格对比（元/吨）</div>
-    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。图例：<b style="color:var(--forest)">林</b> · <b style="color:#74c69d">草</b> · <b style="color:var(--blue)">蓝碳</b> · <b style="color:var(--warn)">跨生态</b></div>
-    <div class="legend" style="margin-bottom:8px">
-      <span style="margin-right:14px"><i style="background:#2d6a4f"></i>林（三明/漳平）</span>
-      <span style="margin-right:14px"><i style="background:#74c69d"></i>草（达茂旗）</span>
-      <span style="margin-right:14px"><i style="background:#1d6fd6"></i>蓝碳（湛江/连江/深圳）</span>
-      <span><i style="background:#b08900"></i>跨生态（湖北）</span>
-      <button onclick="toggleScale()" style="margin-left:auto;background:var(--forest);color:#fff;border:none;padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.82em">切换 线性 / 对数刻度</button>
+    <div class="chart-sub">💡 每根柱子可点击跳转真实来源；红树林深圳485为拍卖成交价（165%溢价）。图例：<b style="color:var(--forest2)">林</b> · <b style="color:var(--grass)">草</b> · <b style="color:var(--ocean2)">蓝碳</b> · <b style="color:var(--goldD)">跨生态</b></div>
+    <div class="legend" style="margin-bottom:10px">
+      <span><i style="background:var(--forest2)"></i>林（三明/漳平）</span>
+      <span><i style="background:var(--grass)"></i>草（达茂旗）</span>
+      <span><i style="background:var(--ocean2)"></i>蓝碳（湛江/连江/深圳）</span>
+      <span><i style="background:var(--gold)"></i>跨生态（湖北）</span>
+      <button class="btn" onclick="toggleScale()" style="margin-left:auto">切换 线性 / 对数刻度</button>
     </div>
-    <div id="price-chart"></div>
+    <div class="chart-body" id="price-chart"><div class="tip" id="tipP"></div></div>
   </div>
 
   <h3>1.3 核心障碍</h3>
@@ -247,58 +366,67 @@ footer a{color:#a8d5f5}
     <svg viewBox="0 0 1000 470" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-          <path d="M0,0 L10,5 L0,10 z" fill="#2d6a4f"/>
+          <path d="M0,0 L10,5 L0,10 z" fill="#2e8b63"/>
         </marker>
-        <linearGradient id="gT" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#74c69d"/><stop offset="1" stop-color="#2d6a4f"/>
+        <linearGradient id="gIssue" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2e8b63"/><stop offset="1" stop-color="#1e6b4c"/>
         </linearGradient>
+        <linearGradient id="gReg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2e7bb8"/><stop offset="1" stop-color="#0f4c81"/>
+        </linearGradient>
+        <linearGradient id="gTrade" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#d9b15e"/><stop offset="1" stop-color="#c8a24b"/>
+        </linearGradient>
+        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0e3a2a" flood-opacity="0.15"/>
+        </filter>
       </defs>
 
       <!-- 层1 发行端 -->
-      <rect x="40" y="20" width="920" height="120" rx="14" fill="#eef7f1" stroke="#74c69d" stroke-width="1.5"/>
-      <text x="60" y="52" font-size="17" font-weight="800" fill="#1b6b34">① 发行端 · 调质（质量调整）</text>
+      <rect x="40" y="20" width="920" height="120" rx="18" fill="#eef7f1" stroke="#9fceb3" stroke-width="1.5"/>
+      <text x="60" y="52" font-size="17" font-weight="800" fill="#1e6b4c">① 发行端 · 调质（质量调整）</text>
       <text x="60" y="74" font-size="13" fill="#4a5d52">林票/草票/蓝票 各自方法学核算 → 风险缓冲 + 持久期折减 → 输出"经过质量调整的 tCO₂e"（单位可比）</text>
-      <g font-size="13" font-weight="700">
-        <rect x="70" y="90" width="120" height="38" rx="8" fill="#74c69d"/><text x="130" y="114" text-anchor="middle" fill="#0c2a1a">🌲 林票</text>
-        <rect x="215" y="90" width="120" height="38" rx="8" fill="#95d5b2"/><text x="275" y="114" text-anchor="middle" fill="#0c2a1a">🟢 草票</text>
-        <rect x="360" y="90" width="120" height="38" rx="8" fill="#a8d5f5"/><text x="420" y="114" text-anchor="middle" fill="#0c2a1a">🔵 蓝票</text>
-        <rect x="520" y="88" width="190" height="42" rx="9" fill="#2d6a4f"/><text x="615" y="113" text-anchor="middle" fill="#fff">风险缓冲 + 持久期折减</text>
-        <rect x="740" y="88" width="190" height="42" rx="9" fill="url(#gT)"/><text x="835" y="113" text-anchor="middle" fill="#fff">调整后 tCO₂e（可比）</text>
+      <g font-size="13" font-weight="700" filter="url(#soft)">
+        <rect x="70" y="90" width="120" height="38" rx="10" fill="#1e6b4c"/><text x="130" y="114" text-anchor="middle" fill="#fff">🌲 林票</text>
+        <rect x="215" y="90" width="120" height="38" rx="10" fill="#7faf4b"/><text x="275" y="114" text-anchor="middle" fill="#17380f">🟢 草票</text>
+        <rect x="360" y="90" width="120" height="38" rx="10" fill="#2e7bb8"/><text x="420" y="114" text-anchor="middle" fill="#fff">🔵 蓝票</text>
+        <rect x="520" y="88" width="190" height="42" rx="11" fill="#c8a24b"/><text x="615" y="113" text-anchor="middle" fill="#3d320b">风险缓冲 + 持久期折减</text>
+        <rect x="740" y="88" width="190" height="42" rx="11" fill="url(#gIssue)"/><text x="835" y="113" text-anchor="middle" fill="#fff">调整后 tCO₂e（可比）</text>
       </g>
 
       <!-- 箭头 -->
-      <line x1="615" y1="110" x2="735" y2="110" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr)"/>
-      <line x1="500" y1="140" x2="500" y2="170" stroke="#2d6a4f" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="615" y1="110" x2="735" y2="110" stroke="#2e8b63" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="500" y1="142" x2="500" y2="172" stroke="#2e8b63" stroke-width="2" marker-end="url(#arr)"/>
 
       <!-- 层2 登记端 -->
-      <rect x="40" y="175" width="920" height="120" rx="14" fill="#f0f7fb" stroke="#a8d5f5" stroke-width="1.5"/>
-      <text x="60" y="207" font-size="17" font-weight="800" fill="#1d6fd6">② 登记端 · 统一记账（一本账）</text>
+      <rect x="40" y="175" width="920" height="120" rx="18" fill="#eef5fb" stroke="#a9c9e4" stroke-width="1.5"/>
+      <text x="60" y="207" font-size="17" font-weight="800" fill="#0f4c81">② 登记端 · 统一记账（一本账）</text>
       <text x="60" y="229" font-size="13" fill="#4a5d52">统一序列号 · 注销锁定 · 相应调整（防双重计算）—— 参照巴黎协定 6.2 一正一负记账</text>
-      <g font-size="13" font-weight="700">
-        <rect x="70" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="170" y="269" text-anchor="middle" fill="#0c2a1a">🔢 唯一序列号（可追溯）</text>
-        <rect x="300" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="400" y="269" text-anchor="middle" fill="#0c2a1a">🗑 注销锁定（防重复）</text>
-        <rect x="530" y="245" width="200" height="38" rx="8" fill="#a8d5f5"/><text x="630" y="269" text-anchor="middle" fill="#0c2a1a">⚖ 相应调整（6.2）</text>
-        <rect x="760" y="245" width="170" height="38" rx="8" fill="#a8d5f5"/><text x="845" y="269" text-anchor="middle" fill="#0c2a1a">🗺 服务区（EPA）</text>
+      <g font-size="13" font-weight="700" filter="url(#soft)">
+        <rect x="70" y="245" width="200" height="38" rx="10" fill="#2e7bb8"/><text x="170" y="269" text-anchor="middle" fill="#fff">🔢 唯一序列号（可追溯）</text>
+        <rect x="300" y="245" width="200" height="38" rx="10" fill="#2e7bb8"/><text x="400" y="269" text-anchor="middle" fill="#fff">🗑 注销锁定（防重复）</text>
+        <rect x="530" y="245" width="200" height="38" rx="10" fill="#2e7bb8"/><text x="630" y="269" text-anchor="middle" fill="#fff">⚖ 相应调整（6.2）</text>
+        <rect x="760" y="245" width="170" height="38" rx="10" fill="#2e7bb8"/><text x="845" y="269" text-anchor="middle" fill="#fff">🗺 服务区（EPA）</text>
       </g>
 
-      <line x1="500" y1="295" x2="500" y2="325" stroke="#1d6fd6" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="500" y1="297" x2="500" y2="327" stroke="#2e7bb8" stroke-width="2" marker-end="url(#arr)"/>
 
       <!-- 层3 交易端 -->
-      <rect x="40" y="330" width="920" height="120" rx="14" fill="#fff8e1" stroke="#f0dca6" stroke-width="1.5"/>
-      <text x="60" y="362" font-size="17" font-weight="800" fill="#8a6d00">③ 交易端 · 市场化定价（一个市场）</text>
+      <rect x="40" y="330" width="920" height="120" rx="18" fill="#faf5e8" stroke="#e3cf9a" stroke-width="1.5"/>
+      <text x="60" y="362" font-size="17" font-weight="800" fill="#8a6d1f">③ 交易端 · 市场化定价（一个市场）</text>
       <text x="60" y="384" font-size="13" fill="#4a5d52">不设行政汇率 · 由市场发现"价值比价" · 定价参考模型动态校准 —— Woerman(2023) 兑换率理论</text>
-      <g font-size="13" font-weight="700">
-        <rect x="70" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="170" y="424" text-anchor="middle" fill="#4a3a00">🚫 不设行政固定汇率</text>
-        <rect x="300" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="400" y="424" text-anchor="middle" fill="#4a3a00">💰 市场发现价值比价</text>
-        <rect x="530" y="400" width="200" height="38" rx="8" fill="#f0dca6"/><text x="630" y="424" text-anchor="middle" fill="#4a3a00">📈 生态属性升贴水</text>
-        <rect x="760" y="400" width="170" height="38" rx="8" fill="#f0dca6"/><text x="845" y="424" text-anchor="middle" fill="#4a3a00">🔄 动态校准模型</text>
+      <g font-size="13" font-weight="700" filter="url(#soft)">
+        <rect x="70" y="400" width="200" height="38" rx="10" fill="#d9b15e"/><text x="170" y="424" text-anchor="middle" fill="#3d320b">🚫 不设行政固定汇率</text>
+        <rect x="300" y="400" width="200" height="38" rx="10" fill="#d9b15e"/><text x="400" y="424" text-anchor="middle" fill="#3d320b">💰 市场发现价值比价</text>
+        <rect x="530" y="400" width="200" height="38" rx="10" fill="#d9b15e"/><text x="630" y="424" text-anchor="middle" fill="#3d320b">📈 生态属性升贴水</text>
+        <rect x="760" y="400" width="170" height="38" rx="10" fill="#d9b15e"/><text x="845" y="424" text-anchor="middle" fill="#3d320b">🔄 动态校准模型</text>
       </g>
     </svg>
   </div>
   <div class="grid g3">
-    <div class="card stat"><b>1 tCO₂e = 1 tCO₂e</b><span>碳当量度量衡恒等（统一"秤"）—— 温室效应与生态类型无关</span></div>
-    <div class="card stat"><b>≠ 价格相等</b><span>价值换算由市场发现（动态）—— 1:1是度量衡，不是价格</span></div>
-    <div class="card stat"><b>0 行政汇率</b><span>不设固定换算系数 —— 动态市场只能由市场定价</span></div>
+    <div class="stat-card t-forest"><b>1 tCO₂e = 1 tCO₂e</b><span>碳当量度量衡恒等（统一"秤"）—— 温室效应与生态类型无关</span></div>
+    <div class="stat-card t-grass"><b>≠ 价格相等</b><span>价值换算由市场发现（动态）—— 1:1是度量衡，不是价格</span></div>
+    <div class="stat-card t-ocean"><b>0 行政汇率</b><span>不设固定换算系数 —— 动态市场只能由市场定价</span></div>
   </div>
 </section>
 
@@ -347,14 +475,14 @@ footer a{color:#a8d5f5}
   <h3>5.2 为什么不能设行政固定汇率（学术依据）</h3>
   <div class="grid g3">
     <div class="card"><h4>Woerman (2023, JEEM)</h4><p>正式证明统一价格/1:1链接<b>"很少社会最优"</b>，而<b>兑换率（exchange rate）</b>让不同市场配额以不同价值流通，更接近社会最优——"两地区都受益、环境也受益"。</p><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a> · <a class="src" href="https://www.umass.edu/news/article/linking-carbon-markets-allowance-exchange-rate-yields-environmental-economic-dividends">UMass解读</a></div>
-    <div class="card"><h4>Burtraw, Palmer & Munnings (RFF)</h4><p>提出"兑换率"机制——让一个体系配额在另一体系以不同合规价值流通，用兑换率调整不同项目的严格程度差异。</p><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF WP 17-16</a></div>
-    <div class="card"><h4>2023 年碳市场崩盘（现实例证）</h4><p>S&P Platts 自然碳清除价格从 11.5 美元跌至 <b>3.5美元/吨</b>（跌约70%）。<b>若当初设固定行政汇率，市场早已崩穿。</b></p><a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&P Global</a></div>
+    <div class="card"><h4>Burtraw, Palmer &amp; Munnings (RFF)</h4><p>提出"兑换率"机制——让一个体系配额在另一体系以不同合规价值流通，用兑换率调整不同项目的严格程度差异。</p><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF WP 17-16</a></div>
+    <div class="card"><h4>2023 年碳市场崩盘（现实例证）</h4><p>S&amp;P Platts 自然碳清除价格从 11.5 美元跌至 <b>3.5美元/吨</b>（跌约70%）。<b>若当初设固定行政汇率，市场早已崩穿。</b></p><a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&amp;P Global</a></div>
   </div>
 
   <h3>5.3 市场如何发现价值（"升贴水"模式）</h3>
   <div class="tbl-wrap"><table>
     <tr><th>机制</th><th>做法</th><th>数据</th><th>来源</th></tr>
-    <tr><td>Platts 本地树种升贴水</td><td>100%本地树种 A/R 项目相对标准现年评估价的每日升贴水</td><td>2024-03-11 上线每日评估</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&P</a></td></tr>
+    <tr><td>Platts 本地树种升贴水</td><td>100%本地树种 A/R 项目相对标准现年评估价的每日升贴水</td><td>2024-03-11 上线每日评估</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&amp;P</a></td></tr>
     <tr><td>CCP 高质量标签溢价</td><td>ICVCM 核心碳原则（CCP）标签项目获市场溢价</td><td>溢价约 <b>25%</b>；首批2700万信用获标签</td><td><a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">Abatable</a> <a class="src" href="https://carboncredits.com/expert-predicts-double-digit-price-hike-for-ccp-labeled-carbon-credits/">carboncredits</a></td></tr>
     <tr><td>深圳拍卖发现价格</td><td>公开竞价，17家92轮</td><td>红树林碳汇 183→485元/吨（溢价165%）</td><td><a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">深圳市政府</a></td></tr>
   </table></div>
@@ -375,7 +503,7 @@ footer a{color:#a8d5f5}
   <div class="chart">
     <div class="chart-title">📊 谢高地等(2015) 当量因子：森林 vs 草原 关键服务对比</div>
     <div class="chart-sub">当量因子 = 相对农田食物生产能力(1)的权重。数据：<a class="src" href="#refs">谢高地等, 自然资源学报 2015</a>；湿地水文调节当量 24.23（另行表述）。</div>
-    <div id="factor-chart"></div>
+    <div class="chart-body" id="factor-chart"><div class="tip" id="tipF"></div></div>
   </div>
 </section>
 
@@ -390,7 +518,7 @@ footer a{color:#a8d5f5}
     <tr><td><b>价</b>（价值换算）</td><td><b>动态</b>（市场重新发现）</td><td>升贴水、拍卖、供需变化</td></tr>
     <tr><td><b>参考模型参数</b></td><td><b>动态</b>（定期重估）</td><td>方法学更新、科学认知进步</td></tr>
   </table></div>
-  <div class="note"><b>为什么静态汇率必失败：</b>2023年诚信危机后，天然类碳汇价格在数周内一度下跌 25%（2023年1月18日–2月9日），全年更从 11.5 美元/吨跌至 3.5 美元/吨（约 −70%）<a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&P</a>，任何写死的汇率都会瞬间失真并引发套利。动态市场只能由市场定价。</div>
+  <div class="note"><b>为什么静态汇率必失败：</b>2023年诚信危机后，天然类碳汇价格在数周内一度下跌 25%（2023年1月18日–2月9日），全年更从 11.5 美元/吨跌至 3.5 美元/吨（约 −70%）<a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">S&amp;P</a>，任何写死的汇率都会瞬间失真并引发套利。动态市场只能由市场定价。</div>
 </section>
 
 <!-- ================= 差异化 ================= -->
@@ -413,9 +541,7 @@ footer a{color:#a8d5f5}
   <h2><span class="no">九</span>定价参考模型（交互演示）</h2>
   <p class="lead">演示"交换激励"逻辑链：草票互通后进入全国市场，价格向同类碳汇收敛，价差形成供给激励。拖滑块看敏感性（<b>基于真实数据 + 可调假设</b>）。</p>
   <div class="model">
-    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:.82em;color:var(--ink2)">
-      <span>基础数据：达茂旗首期已签发碳汇 <b>40万吨</b><a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；草票现行价 <b>7 元/吨</b><a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></span>
-    </div>
+    <div class="basis">基础数据：达茂旗首期已签发碳汇 <b>40万吨</b><a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">源</a>；草票现行价 <b>7 元/吨</b><a class="src" href="http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html">源</a></div>
     <div class="ctl">
       <div>
         <label>互通后草票价格（元/吨）—— 参考林业碳票 15–22.68（三明15 / 漳平22.68）<a class="src" href="http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm">三明商务局</a> · <a class="src" href="http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm">龙岩林业局</a></label>
@@ -434,7 +560,7 @@ footer a{color:#a8d5f5}
       <div class="cell"><span>增收（对比7元现状）</span><b id="o3">+64 万元</b></div>
       <div class="cell"><span>若维持7元（不互通）</span><b id="o4">56 万元</b></div>
     </div>
-    <div class="note" style="margin-top:14px"><b>免责说明：</b>这是<b>机制性测算</b>，非精确预测。核心贡献在于证明"互通能创造新增激励"的因果链，参数均可调、可复算。规则允许"基于合理假设的估算"（竞赛规则·零碳效益指标）。</div>
+    <div class="note" style="margin-top:16px"><b>免责说明：</b>这是<b>机制性测算</b>，非精确预测。核心贡献在于证明"互通能创造新增激励"的因果链，参数均可调、可复算。规则允许"基于合理假设的估算"（竞赛规则·零碳效益指标）。</div>
   </div>
 </section>
 
@@ -482,7 +608,7 @@ footer a{color:#a8d5f5}
     <tr><td>美国 EPA 湿地银行</td><td>登记端服务区</td><td>Mitigation Rule 2008 (33 CFR 332)</td><td><a class="src" href="https://www.bafu.admin.ch/en/linking-the-swiss-and-eu-emissions-trading-systems">EPA 制度框架</a></td></tr>
     <tr><td>Woerman (2023)</td><td>交易端市场化定价</td><td>兑换率优于1:1行政固定</td><td><a class="src" href="https://www.semanticscholar.org/paper/Linking-carbon-markets-with-different-initial-Woerman/5fa24b992354f0fbedefa08f4d3705a52eafe392">论文</a></td></tr>
     <tr><td>Burtraw 等 (RFF)</td><td>交易端兑换率</td><td>WP 17-16</td><td><a class="src" href="https://media.rff.org/documents/WP_17-16.pdf">RFF 工作论文</a></td></tr>
-    <tr><td>Platts 升贴水</td><td>交易端价格发现</td><td>本地树种每日升贴水</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&P</a></td></tr>
+    <tr><td>Platts 升贴水</td><td>交易端价格发现</td><td>本地树种每日升贴水</td><td><a class="src" href="https://www.spglobal.cn/commodityinsights/en/our-methodology/subscriber-notes/031124-platts-launches-native-species-latin-america-renewable-energy-differentials">S&amp;P</a></td></tr>
     <tr><td>ICVCM CCP 标签</td><td>交易端质量溢价</td><td>溢价约 25%</td><td><a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">Abatable</a></td></tr>
     <tr><td>深圳红树林拍卖</td><td>价格发现验证</td><td>183→485元/吨（溢价165%）</td><td><a class="src" href="https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html">深圳市政府</a></td></tr>
     <tr><td>湖北跨生态方法学</td><td>跨生态计量可行性</td><td>120元/吨、1.77万吨、溢价20%</td><td><a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">湖北政府网</a></td></tr>
@@ -501,7 +627,7 @@ footer a{color:#a8d5f5}
       <li style="margin-bottom:8px">Clean Energy Regulator. Permanence obligations. <a class="src" href="https://cer.gov.au/schemes/australian-carbon-credit-unit-scheme/how-to-participate-accu-scheme/permanence-obligations">链接</a></li>
       <li style="margin-bottom:8px">UNFCCC. Decision 3/CMA.3（6.4机制 5%适应基金、2% OMGE）与 6.2 相应调整规则. <a class="src" href="https://unfccc.int/sites/default/files/resource/DT.CMA2_.i11b_13Dec.pdf">链接</a></li>
       <li style="margin-bottom:8px">Swiss Federal Office for the Environment. Linking the Swiss and EU emissions trading systems. <a class="src" href="https://www.bafu.admin.ch/en/linking-the-swiss-and-eu-emissions-trading-systems">链接</a></li>
-      <li style="margin-bottom:8px">S&P Global Commodity Insights. Price slump in 2023 clouds outlook for voluntary carbon market (2024-01-05). <a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">链接</a></li>
+      <li style="margin-bottom:8px">S&amp;P Global Commodity Insights. Price slump in 2023 clouds outlook for voluntary carbon market (2024-01-05). <a class="src" href="https://www.spglobal.com/energy/en/news-research/latest-news/energy-transition/010524-price-slump-in-2023-clouds-outlook-for-voluntary-carbon-market">链接</a></li>
       <li style="margin-bottom:8px">Abatable. Decoding the Voluntary Carbon Market in 2024 and beyond. <a class="src" href="https://abatable.com/reports/voluntary-carbon-market-overview-2024">链接</a></li>
       <li style="margin-bottom:8px">湖北政府网. 湖北完成首笔山水林田湖草沙一体化保护修复碳汇交易 (2026-04). <a class="src" href="https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml">链接</a></li>
       <li style="margin-bottom:8px">包头日报. 全区首单草原碳汇交易落地达茂旗 (2025-11). <a class="src" href="https://btrb.baotounews.com.cn/paper/pc/content/202511/04/content_197337.html">链接</a></li>
@@ -527,50 +653,62 @@ footer a{color:#a8d5f5}
 </footer>
 
 <script>
-/* ============ 价格对比图（SVG 渲染，可切换刻度） ============ */
+/* ============ 工具：滚动入场 reveal（无 JS 环境自动退化） ============ */
+document.documentElement.classList.add('js');
+(function(){
+  var els = document.querySelectorAll('.card,.stat-card,.chart,.model,.arch,.tbl-wrap,.quote,.note,.flow');
+  if(typeof IntersectionObserver === 'undefined'){ els.forEach(function(e){e.classList.add('in');}); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  },{threshold:0.08,rootMargin:'0px 0px -6% 0px'});
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* ============ 价格对比图（SVG 渲染，可切换刻度 + hover 提示） ============ */
 var priceData = [
-  {label:"草票·达茂旗", v:7,  color:"#74c69d", src:"http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html"},
-  {label:"林票·三明", v:15, color:"#2d6a4f", src:"http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm"},
-  {label:"林票·漳平", v:22.68, color:"#2d6a4f", src:"http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm"},
-  {label:"蓝碳·连江", v:20, color:"#1d6fd6", src:"http://m.people.cn/n4/2023/0605/c1142-20620310.html"},
-  {label:"蓝碳·湛江(公益)", v:66, color:"#1d6fd6", src:"https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html"},
-  {label:"开发权·惠东", v:91.67, color:"#1d6fd6", src:"https://www.cenews.com.cn/news.html?aid=1153428"},
-  {label:"跨生态·湖北", v:120, color:"#b08900", src:"https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml"},
-  {label:"红树林·深圳(拍卖)", v:485, color:"#1d6fd6", src:"https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html"}
+  {label:"草票·达茂旗", v:7,  color:"#7faf4b", src:"http://www.dmlhq.gov.cn/ywdt/ywdt_dmyw/202608/t20260807_945147.html"},
+  {label:"林票·三明", v:15, color:"#1e6b4c", src:"http://swj.sm.gov.cn/xxgk/gzdt/smyw/202503/t20250321_2108737.htm"},
+  {label:"林票·漳平", v:22.68, color:"#1e6b4c", src:"http://lyj.longyan.gov.cn/xxgk/dt/xsqdt/202504/t20250403_2209434.htm"},
+  {label:"蓝碳·连江", v:20, color:"#2e7bb8", src:"http://m.people.cn/n4/2023/0605/c1142-20620310.html"},
+  {label:"蓝碳·湛江(公益)", v:66, color:"#2e7bb8", src:"https://lyj.gd.gov.cn/lmgd/gdxd/content/post_4637034.html"},
+  {label:"开发权·惠东", v:91.67, color:"#2e7bb8", src:"https://www.cenews.com.cn/news.html?aid=1153428"},
+  {label:"跨生态·湖北", v:120, color:"#c8a24b", src:"https://www.hubei.gov.cn/hbfb/rdgz/202604/t20260425_5922282.shtml"},
+  {label:"红树林·深圳(拍卖)", v:485, color:"#2e7bb8", src:"https://www.sz.gov.cn/cn/xxgk/zfxxgj/bmdt/content/post_10860679.html"}
 ];
 var logScale = false;
 function scaleOf(x){ return logScale ? Math.log10(x+1) : x; }
 function renderPriceChart(){
-  var W=860, H=340, padL=120, padR=30, padT=20, padB=46;
+  var W=860, H=360, padL=112, padR=30, padT=24, padB=48;
   var innerW = W-padL-padR, innerH = H-padT-padB;
   var maxV = logScale ? scaleOf(500) : 500;
-  var svg = '';
-  svg += '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
-  // grid
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
+  svg += '<defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e8b63"/><stop offset="1" stop-color="#1e6b4c"/></linearGradient></defs>';
   for(var g=0; g<=4; g++){
     var yy = padT + innerH - g*innerH/4;
-    var gv = logScale ? Math.pow(10, g*Math.log10(500)/4) : g*500/4;
-    svg += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e5ede8" stroke-width="1"/>';
-    svg += '<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8ba39a">'+Math.round(gv)+'</text>';
+    var gv = logScale ? Math.round(Math.pow(10, g*Math.log10(500)/4)) : g*500/4;
+    svg += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#edf1e9" stroke-width="1" stroke-dasharray="'+(g===0?'0':'3 4')+'"/>';
+    svg += '<text x="'+(padL-9)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8aa095">'+gv+'</text>';
   }
-  var n = priceData.length, bw = innerW/n*0.55;
+  var n = priceData.length, bw = innerW/n*0.52;
   priceData.forEach(function(d,i){
     var x = padL + i*innerW/n + (innerW/n-bw)/2;
-    var h = Math.max(2, scaleOf(d.v)/maxV * innerH);
+    var h = Math.max(3, scaleOf(d.v)/maxV * innerH);
     var y = padT + innerH - h;
-    var labelY = H - padB + 18;
-    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="3" fill="'+d.color+'" opacity="0.85"/></a>';
-    svg += '<text x="'+x+'" y="'+(y-5)+'" font-size="11" font-weight="700" fill="#333" text-anchor="middle">'+d.v+'</text>';
-    svg += '<text x="'+(x+bw/2)+'" y="'+labelY+'" font-size="10.5" fill="#4a5d52" text-anchor="middle">'+d.label+'</text>';
+    svg += '<g class="pbar">';
+    svg += '<a href="'+d.src+'" target="_blank" rel="noopener"><rect data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+d.color+'" opacity="0.92"/></a>';
+    svg += '<rect data-i="'+i+'" x="'+(x+bw/2-14)+'" y="'+(y-22)+'" width="28" height="18" rx="9" fill="#15221a" opacity="0"/>';
+    svg += '<text data-i="'+i+'" x="'+(x+bw/2)+'" y="'+(y-8)+'" font-size="12" font-weight="800" fill="#15221a" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">'+d.v+'</text>';
+    svg += '<text x="'+(x+bw/2)+'" y="'+(H-padB+18)+'" font-size="10.5" fill="#57685e" text-anchor="middle">'+d.label+'</text>';
+    svg += '</g>';
   });
-  // baseline note
-  svg += '<text x="'+(W-padR)+'" y="'+padT+'" text-anchor="end" font-size="10" fill="#b08900">虚线 = 500 刻度顶（对数模式下相同）</text>';
   svg += '</svg>';
-  document.getElementById('price-chart').innerHTML = svg;
+  document.getElementById('price-chart').innerHTML = svg + '<div class="tip" id="tipP"></div>';
+  bindTip('price-chart','tipP','priceData');
 }
-function toggleScale(){ logScale = !logScale; renderPriceChart(); }
 
-/* ============ 当量因子图（森林 vs 草地，分组柱状） ============ */
+/* ============ 当量因子图（森林 vs 草地，分组柱状 + hover 提示） ============ */
 function renderFactorChart(){
   var data = [
     {name:"气候调节", forest:7.03, grass:1.34, src:"谢高地等 2015"},
@@ -580,26 +718,74 @@ function renderFactorChart(){
     {name:"生物多样性", forest:2.60, grass:0.56, src:"谢高地等 2015"},
     {name:"土壤保持", forest:2.86, grass:0.62, src:"谢高地等 2015"}
   ];
-  var W=860, H=340, padL=70, padR=20, padT=20, padB=40;
+  var W=860, H=340, padL=64, padR=20, padT=24, padB=44;
   var innerW=W-padL-padR, innerH=H-padT-padB, maxV=8;
   var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="PingFang SC,Microsoft YaHei,sans-serif">';
+  svg += '<defs><linearGradient id="gF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e8b63"/><stop offset="1" stop-color="#1e6b4c"/></linearGradient>'
+      +  '<linearGradient id="gG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7c96f"/><stop offset="1" stop-color="#7faf4b"/></linearGradient></defs>';
   for(var g=0; g<=4; g++){
     var yy=padT+innerH-g*innerH/4, gv=g*maxV/4;
-    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#e5ede8"/>';
-    svg+='<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8ba39a">'+gv+'</text>';
+    svg+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#edf1e9" stroke-dasharray="'+(g===0?'0':'3 4')+'"/>';
+    svg+='<text x="'+(padL-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="11" fill="#8aa095">'+gv+'</text>';
   }
   var n=data.length, gw=innerW/n, bw=gw*0.3;
   data.forEach(function(d,i){
     var x=padL+i*gw+gw*0.25;
-    var hf=Math.max(2,d.forest/maxV*innerH), hg=Math.max(2,d.grass/maxV*innerH);
-    svg+='<rect x="'+x+'" y="'+(padT+innerH-hf)+'" width="'+bw+'" height="'+hf+'" rx="3" fill="#2d6a4f" opacity="0.85"/>';
-    svg+='<rect x="'+(x+bw+3)+'" y="'+(padT+innerH-hg)+'" width="'+bw+'" height="'+hg+'" rx="3" fill="#74c69d" opacity="0.9"/>';
-    svg+='<text x="'+x+'" y="'+(padT+innerH-hf-5)+'" font-size="10.5" fill="#2d6a4f" text-anchor="middle">'+d.forest+'</text>';
-    svg+='<text x="'+(x+bw+3)+'" y="'+(padT+innerH-hg-5)+'" font-size="10.5" fill="#40916c" text-anchor="middle">'+d.grass+'</text>';
-    svg+='<text x="'+(x+gw/2)+'" y="'+(H-padB+16)+'" font-size="11" fill="#4a5d52" text-anchor="middle">'+d.name+'</text>';
+    var hf=Math.max(3,d.forest/maxV*innerH), hg=Math.max(3,d.grass/maxV*innerH);
+    svg+='<rect data-f="'+i+'" x="'+x+'" y="'+(padT+innerH-hf)+'" width="'+bw+'" height="'+hf+'" rx="5" fill="url(#gF)" opacity="0.94"/>';
+    svg+='<rect data-g="'+i+'" x="'+(x+bw+4)+'" y="'+(padT+innerH-hg)+'" width="'+bw+'" height="'+hg+'" rx="5" fill="url(#gG)" opacity="0.94"/>';
+    svg+='<text data-f="'+i+'" x="'+x+'" y="'+(padT+innerH-hf-7)+'" font-size="10.5" font-weight="700" fill="#1e6b4c" text-anchor="middle">'+d.forest+'</text>';
+    svg+='<text data-g="'+i+'" x="'+(x+bw+4)+'" y="'+(padT+innerH-hg-7)+'" font-size="10.5" font-weight="700" fill="#5d8a38" text-anchor="middle">'+d.grass+'</text>';
+    svg+='<text x="'+(x+gw/2)+'" y="'+(H-padB+16)+'" font-size="11" fill="#57685e" text-anchor="middle">'+d.name+'</text>';
   });
   svg+='</svg>';
-  document.getElementById('factor-chart').innerHTML = svg;
+  document.getElementById('factor-chart').innerHTML = svg + '<div class="tip" id="tipF"></div>';
+  bindTipF('factor-chart','tipF',data);
+}
+
+/* ============ hover 提示：价格图 ============ */
+function bindTip(containerId, tipId, dataVar){
+  var box = document.getElementById(containerId);
+  var tip = document.getElementById(tipId);
+  if(!box||!tip) return;
+  box.addEventListener('mousemove', function(ev){
+    var r = ev.target.closest ? ev.target.closest('[data-i]') : null;
+    if(!r){ tip.style.opacity = 0; return; }
+    var i = +r.getAttribute('data-i');
+    var d = window[dataVar][i];
+    tip.innerHTML = '<div class="tv">'+d.label+' · '+d.v+' 元/吨</div>来源：<a href="'+d.src+'" target="_blank" rel="noopener">点击查看原文 ↗</a>';
+    var bx = box.getBoundingClientRect();
+    var px = ev.clientX - bx.left, py = ev.clientY - bx.top;
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(Math.max(px+12, 4), box.clientWidth - 250) + 'px';
+    tip.style.top = (py - tip.offsetHeight - 10 < 0 ? py + 16 : py - tip.offsetHeight - 10) + 'px';
+  });
+  box.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
+}
+
+/* ============ hover 提示：因子图 ============ */
+function bindTipF(containerId, tipId, data){
+  var box = document.getElementById(containerId);
+  var tip = document.getElementById(tipId);
+  if(!box||!tip) return;
+  box.addEventListener('mousemove', function(ev){
+    var t = ev.target;
+    var isF = t.getAttribute && t.getAttribute('data-f') !== null;
+    var isG = t.getAttribute && t.getAttribute('data-g') !== null;
+    if((!isF && !isG) || !t.closest){
+      tip.style.opacity = 0; return;
+    }
+    var i = isF ? +t.getAttribute('data-f') : +t.getAttribute('data-g');
+    var d = data[i];
+    var kind = isF ? '森林' : '草原';
+    tip.innerHTML = '<div class="tv">'+d.name+' · '+kind+' 当量 '+ (isF?d.forest:d.grass) +'</div>数据：'+d.src;
+    var bx = box.getBoundingClientRect();
+    var px = ev.clientX - bx.left, py = ev.clientY - bx.top;
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(Math.max(px+12,4), box.clientWidth - 250) + 'px';
+    tip.style.top = (py - tip.offsetHeight - 10 < 0 ? py + 16 : py - tip.offsetHeight - 10) + 'px';
+  });
+  box.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
 }
 
 /* ============ 定价参考模型 ============ */
@@ -620,6 +806,8 @@ function updateModel(){
 }
 document.getElementById('price').addEventListener('input', updateModel);
 document.getElementById('ratio').addEventListener('input', updateModel);
+
+function toggleScale(){ logScale = !logScale; renderPriceChart(); }
 
 renderPriceChart();
 renderFactorChart();
